@@ -8,7 +8,7 @@ def handler(event, context):
         ocr_text = body.get("ocrText", "")
         
         # Gemini API 用のプロンプト作成
-        prompt = f"以下のテキストから、買い物リストとして適切な項目（商品名と数量があれば）を箇条書きにしてください。\n\n{ocr_text}"
+        prompt = f"以下のテキストから、買い物リスト項目として適切な分を（商品名と数量があれば）を箇条書きにしてください。買物リスト などの分はいりません   出力例 商品名 個数など（記載あれば）\n\n{ocr_text}"
         
         gemini_api_key = os.environ.get("GOOGLE_AI_STUDIO_API_KEY")
         api_url = f"https://gemini.googleapis.com/v1/complete?key={gemini_api_key}"
