@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import Webcam from 'react-webcam';
-import { Camera, Upload, RefreshCw } from 'lucide-react';
+import { Camera, Upload } from 'lucide-react';
 
 export function OCRCapture() {
   const [showCamera, setShowCamera] = useState(false);
@@ -11,7 +11,7 @@ export function OCRCapture() {
   const [loading, setLoading] = useState(false);
   const webcamRef = useRef<Webcam>(null);
 
-  // OCR処理：Google Cloud Vision API で画像からテキスト抽出し、Gemini 連携を実施
+  // OCR処理：Google Cloud Vision API で画像からテキストを抽出し、その後 Gemini 連携を実施
   const processOCR = async (imageSrc: string) => {
     setLoading(true);
     setErrorMessage('');
@@ -48,56 +48,72 @@ export function OCRCapture() {
     } catch (error) {
       console.error('OCR error:', error);
       setOcrResult('読み取りに失敗しました');
-      // error が unknown の場合に備えた処理
       setErrorMessage('OCR処理でエラーが発生しました。' + (error instanceof Error ? error.message : ''));
     } finally {
       setLoading(false);
     }
   };
 
-  // Gemini API 呼び出し：OCRテキストを買い物リスト形式に変換する
+  // Gemini API 呼び出し：最新仕様に合わせ Gemini 2.0 Flash を利用して買い物リスト形式に変換する
   const processGemini = async (ocrText: string) => {
     setLoading(true);
     setErrorMessage('');
     try {
-      const prompt = `以下のテキストから、買い物リストとして適切な商品名と数量（あれば）を箇条書きにしてください。\n\n${ocrText}`;
+      const promptText = `以下のテキストから、買い物リストとして適切な商品名と数量（あれば）を箇条書きにしてください。\n\n${ocrText}`;
+
+      // 最新の Gemini 2.0 Flash モデル（例：gemini-2.0-flash）を使用
+      const modelName = "gemini-2.0-flash";
       const geminiApiKey = import.meta.env.VITE_GOOGLE_AI_STUDIO_API_KEY;
-      const apiUrl = `https://gemini.googleapis.com/v1/complete?key=${geminiApiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`;
+
       const geminiRequestBody = {
-        prompt: prompt,
-        candidate_count: 1,
-        max_output_tokens: 100,
-        temperature: 0.5,
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: promptText,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.5,
+          topK: 64,
+          topP: 0.95,
+          maxOutputTokens: 100,
+          responseMimeType: "text/plain",
+        },
       };
 
       const geminiResponse = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(geminiRequestBody),
       });
       const geminiResultJson = await geminiResponse.json();
 
       if (geminiResultJson.error) {
-        console.error('Gemini API error:', geminiResultJson.error);
-        setGeminiResult('変換に失敗しました');
+        console.error("Gemini API error:", geminiResultJson.error);
+        setGeminiResult("変換に失敗しました");
         setErrorMessage(`Gemini API エラー: ${geminiResultJson.error.message || JSON.stringify(geminiResultJson.error)}`);
       } else {
-        const shoppingListText = geminiResultJson.completion || '';
+        const shoppingListText = geminiResultJson.candidates?.[0]?.content?.parts?.[0]?.text || "";
         if (!shoppingListText) {
-          throw new Error('Gemini APIから有効なテキストが返されませんでした');
+          throw new Error("Gemini APIから有効なテキストが返されませんでした");
         }
         setGeminiResult(shoppingListText);
       }
     } catch (error) {
-      console.error('Gemini API error:', error);
-      setGeminiResult('変換に失敗しました');
-      setErrorMessage('Gemini API 呼び出し中にエラーが発生しました。' + (error instanceof Error ? error.message : ''));
+      console.error("Gemini API error:", error);
+      setGeminiResult("変換に失敗しました");
+      setErrorMessage("Gemini API 呼び出し中にエラーが発生しました。" + (error instanceof Error ? error.message : ""));
     } finally {
       setLoading(false);
     }
   };
 
-  // カメラで撮影した画像を取得し、OCR処理を実行
+  // カメラで撮影した画像を取得して OCR 処理へ渡す
   const captureImage = () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
@@ -116,7 +132,7 @@ export function OCRCapture() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result;
-        const imageSrc = typeof result === 'string' ? result : '';
+        const imageSrc = typeof result === "string" ? result : "";
         setCapturedImage(imageSrc);
         processOCR(imageSrc);
       };
