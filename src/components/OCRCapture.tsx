@@ -209,8 +209,35 @@ export function OCRCapture() {
   const [errorMessage, setErrorMessage] = useState('');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const webcamRef = useRef<Webcam>(null);
+  const [videoConstraints, setVideoConstraints] = useState<{ facingMode: string }>({
+    facingMode: "user", // デフォルトはフロントカメラ
+  });
 
+  const webcamRef = useRef<Webcam>(null);
+  // 📌 デバイスに応じてカメラを自動設定
+  useEffect(() => {
+    async function setCameraMode() {
+      try {
+        // 一時的にカメラを開いてデバイス情報を取得
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        stream.getTracks().forEach(track => track.stop()); // カメラを閉じる
+
+        // 背面カメラがあるか確認
+        const hasBackCamera = devices.some(
+          (device) => device.kind === "videoinput" && device.label.toLowerCase().includes("back")
+        );
+
+        // 背面カメラがあるなら `environment` を設定
+        setVideoConstraints({
+          facingMode: hasBackCamera ? "environment" : "user",
+        });
+      } catch (error) {
+        console.error("カメラデバイスの取得に失敗しました:", error);
+        setVideoConstraints({ facingMode: "user" }); // エラー時はフロントカメラを使用
+      }
+    }    setCameraMode();
+  }, []);
   // OCR処理：Google Cloud Vision API を使って画像からテキスト抽出し、Gemini 連携を実施
   const processOCR = async (imageSrc: string) => {
     setLoading(true);
