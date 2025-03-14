@@ -210,7 +210,7 @@ export function OCRCapture() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [videoConstraints, setVideoConstraints] = useState<{ facingMode: string }>({
-    facingMode: "user", // デフォルトはフロントカメラ
+    facingMode: "back", // デフォルトはフロントカメラ
   });
 
   const webcamRef = useRef<Webcam>(null);
