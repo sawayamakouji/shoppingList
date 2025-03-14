@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import Webcam from 'react-webcam';
 import { Camera, Upload } from 'lucide-react';
+import { supabase } from '../lib/supabase'; // Supabase 初期化モジュール
 
 export function OCRCapture() {
   const [showCamera, setShowCamera] = useState(false);
@@ -11,12 +12,11 @@ export function OCRCapture() {
   const [loading, setLoading] = useState(false);
   const webcamRef = useRef<Webcam>(null);
 
-  // OCR処理：Google Cloud Vision API で画像からテキストを抽出し、その後 Gemini 連携を実施
+  // OCR処理：Google Cloud Vision API を使って画像からテキスト抽出し、Gemini 連携を実施
   const processOCR = async (imageSrc: string) => {
     setLoading(true);
     setErrorMessage('');
     try {
-      // Data URLから base64 部分を抽出
       const base64Image = imageSrc.split(',')[1];
       const visionApiKey = import.meta.env.VITE_GOOGLE_CLOUD_VISION_API_KEY;
       const visionRequestBody = {
@@ -60,20 +60,15 @@ export function OCRCapture() {
     setErrorMessage('');
     try {
       const promptText = `以下のテキストから、買い物リストとして適切な商品名と数量（あれば）を箇条書きにしてください。\n\n${ocrText}`;
-
-      // 最新の Gemini 2.0 Flash モデル（例：gemini-2.0-flash）を使用
       const modelName = "gemini-2.0-flash";
       const geminiApiKey = import.meta.env.VITE_GOOGLE_AI_STUDIO_API_KEY;
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`;
-
       const geminiRequestBody = {
         contents: [
           {
             role: "user",
             parts: [
-              {
-                text: promptText,
-              },
+              { text: promptText }
             ],
           },
         ],
@@ -113,7 +108,39 @@ export function OCRCapture() {
     }
   };
 
-  // カメラで撮影した画像を取得して OCR 処理へ渡す
+  // Supabase に買い物リストアイテムを追加する関数
+  const addItemToShoppingList = async (itemText: string) => {
+    try {
+      const { error } = await supabase.from('shopping_items').insert([
+        {
+          name: itemText,
+          // 必要なら他のフィールドも追加
+        },
+      ]);
+      if (error) throw error;
+      alert("買い物リストに追加しました");
+    } catch (error) {
+      console.error("Supabase addItem error:", error);
+      alert("買い物リストへの追加に失敗しました");
+    }
+  };
+
+  // 「買い物リストに追加」ボタン押下時の処理
+  const handleAddToShoppingList = () => {
+    if (!geminiResult) return;
+    const confirmed = window.confirm("この内容で買い物リストに追加しますか？");
+    if (confirmed) {
+      // ここでは、geminiResult の各行を個別のアイテムとして追加する例
+      const items = geminiResult.split('\n').map(line => line.trim()).filter(line => line);
+      items.forEach(item => {
+        addItemToShoppingList(item);
+      });
+    } else {
+      alert("追加をキャンセルしました");
+    }
+  };
+
+  // カメラで撮影した画像を取得し、OCR 処理へ渡す
   const captureImage = () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
@@ -125,7 +152,7 @@ export function OCRCapture() {
     }
   };
 
-  // ファイルアップロード時の処理
+  // 画像アップロード時の処理
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -142,7 +169,7 @@ export function OCRCapture() {
 
   return (
     <div className="space-y-6">
-      {/* OCR & Gemini 変換用UI */}
+      {/* OCR & Gemini 変換用 UI */}
       <div className="bg-white shadow rounded-lg p-6">
         <div className="text-center">
           <h2 className="text-lg font-medium text-gray-900">
@@ -222,8 +249,16 @@ export function OCRCapture() {
       {/* Gemini 変換結果（買い物リスト候補）の表示 */}
       {geminiResult && (
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">買い物リスト候補</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">
+            買い物リスト候補
+          </h3>
           <pre className="whitespace-pre-wrap text-gray-800">{geminiResult}</pre>
+          <button
+            onClick={handleAddToShoppingList}
+            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+          >
+            この内容で追加する
+          </button>
         </div>
       )}
     </div>
