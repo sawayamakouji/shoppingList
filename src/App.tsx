@@ -8,6 +8,7 @@ import { supabase } from './lib/supabase';
 
 type Tab = 'list' | 'ocr' | 'history';
 
+
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('list');
   const [session, setSession] = useState<any>(null);
