@@ -1,0 +1,10 @@
+[build]
+  functions = "netlify/functions"
+  command = "npm run build"  # フロントエンドビルドコマンド
+
+[functions]
+  # 全ての関数で Python を使う場合（例：python3.9）
+  node_bundler = "esbuild"  # JavaScript 用設定はそのままでOK
+
+# Python の場合、Netlify は自動的に適切なランタイムを選択するっちゅう情報もあるけど、
+# 必要なら関数ごとに runtime を指定する方法もある
