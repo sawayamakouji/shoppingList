@@ -58,6 +58,21 @@ export function TopPage() {
         >
           おすすめ
         </button>
+        <button
+            onClick={() => navigate('/album')}
+            className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+          >
+            📷 写真
+        </button>
+        <button
+          onClick={() => window.location.assign(
+            'https://claude.site/artifacts/bdea9bca-7f5a-402f-aa24-9499269a5a6e'
+          )
+        }
+          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+        >
+          暇つぶし
+        </button>
       </div>
     </div>
   );

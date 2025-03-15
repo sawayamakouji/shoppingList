@@ -8,6 +8,7 @@ import { Auth } from './components/Auth';
 import { TopPage } from './components/TopPage';
 import QuestRewardsAnimated from './components/QuestRewardsAnimated';
 import { supabase } from './lib/supabase';
+import { Album } from "./components/AlbumPage";
 
 function MainTabs() {
   const navigate = useNavigate();
@@ -80,6 +81,8 @@ function App() {
       </Route>
       <Route path="/QuestRewardsAnimated" element={<QuestRewardsAnimated />} />
       <Route path="*" element={<Navigate to="/" />} />
+
+      <Route path="/album" element={<Album />} />
     </Routes>
   );
 }
