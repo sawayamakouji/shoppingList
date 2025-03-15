@@ -9,6 +9,8 @@ import { TopPage } from './components/TopPage';
 import QuestRewardsAnimated from './components/QuestRewardsAnimated';
 import { supabase } from './lib/supabase';
 import { AlbumPage } from "./components/AlbumPage";
+import  Recommend from './components/Recommend';
+import  Game from './components/Game';
 
 function MainTabs() {
   const navigate = useNavigate();
@@ -80,6 +82,8 @@ function App() {
         <Route path="purchase" element={<PurchaseHistory />} />
       </Route>
       <Route path="/QuestRewardsAnimated" element={<QuestRewardsAnimated />} />
+      <Route path="/Recommend" element={<Recommend />} />
+      <Route path="/Game" element={< Game />} />
       <Route path="/album" element={<AlbumPage />} />
       <Route path="*" element={<Navigate to="/" />} /> {/* フォールバックは最後に */}
     </Routes>
