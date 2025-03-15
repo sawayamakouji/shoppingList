@@ -28,16 +28,16 @@ export function TopPage() {
           🎈買物にいく🚲
         </button>
         <button
-          onClick={() => navigate('/contact')}
+          onClick={() => navigate('/Rank')}
           className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors"
         >
-          👂問い合わせ📞
+          🏆ランキング📝
         </button>
         <button
-          onClick={() => navigate('/ranking')}
+          onClick={() => navigate('/King')}
           className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors"
         >
-          🏆ランキング📝
+          👂問い合わせ📞
         </button>
         <button
           onClick={() => navigate('/Recommend')}
@@ -59,9 +59,16 @@ export function TopPage() {
         </button>
         <button
           onClick={() => navigate('/Game')}
-          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors"
         >
           🎮暇つぶし
+        </button>
+        
+        <button
+          onClick={() => window.location.href = 'https://suzuri.jp/7DbpRihzKefprwx'}
+          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-green-500 rounded-lg hover:bg-red-600 transition-colors"
+        >
+          スペシャルショップ
         </button>
       </div>
     </div>
