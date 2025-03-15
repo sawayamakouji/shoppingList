@@ -207,7 +207,7 @@ export function OCRCapture() {
   const [ocrResult, setOcrResult] = useState('');
   const [geminiResult, setGeminiResult] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [setCapturedImage] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [videoConstraints] = useState<{ facingMode: string }>({
     facingMode: "environment", // デフォルトは背面カメラ
@@ -358,23 +358,23 @@ export function OCRCapture() {
     }
   };
 
- // 「買い物リストに追加」ボタン押下時の処理
-const handleAddToShoppingList = () => {
-  if (!geminiResult) return;
-  const confirmed = window.confirm("この内容で買い物リストに追加しますか？");
-  if (confirmed) {
-    // 各行をトリムしたあと、"買い物リスト" や "買物リスト" という見出しを除外する
-    const items = geminiResult
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line && !line.includes("買い物リスト"));
-    items.forEach(item => {
-      addItemToShoppingList(item);
-    });
-  } else {
-    alert("追加をキャンセルしました");
-  }
-};
+  // 「買い物リストに追加」ボタン押下時の処理
+  const handleAddToShoppingList = () => {
+    if (!geminiResult) return;
+    const confirmed = window.confirm("この内容で買い物リストに追加しますか？");
+    if (confirmed) {
+      // 各行をトリムしたあと、"買い物リスト" や "買物リスト" という見出しを除外する
+      const items = geminiResult
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line && !line.includes("買い物リスト"));
+      items.forEach(item => {
+        addItemToShoppingList(item);
+      });
+    } else {
+      alert("追加をキャンセルしました");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -408,7 +408,13 @@ const handleAddToShoppingList = () => {
       {/* Webカメラ UI */}
       {showCamera && (
         <div className="bg-white shadow rounded-lg p-6 text-center">
-          <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} className="mx-auto" />
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            videoConstraints={videoConstraints}
+            className="mx-auto"
+          />
           <div className="mt-4 space-x-2">
             <button onClick={captureImage} className="px-4 py-2 bg-blue-600 text-white rounded-md">
               撮影
