@@ -74,15 +74,14 @@ function App() {
       <Route path="/" element={<TopPage />} />
       {/* メイン画面 */}
       <Route path="/app" element={<MainTabs />}>
+        <Route index element={<ShoppingList />} /> {/* /app にアクセスした際のデフォルト */}
         <Route path="shoppinglist" element={<ShoppingList />} />
         <Route path="memo" element={<OCRCapture />} />
         <Route path="purchase" element={<PurchaseHistory />} />
-        <Route path="*" element={<ShoppingList />} />
       </Route>
       <Route path="/QuestRewardsAnimated" element={<QuestRewardsAnimated />} />
-      <Route path="*" element={<Navigate to="/" />} />
-
       <Route path="/album" element={<AlbumPage />} />
+      <Route path="*" element={<Navigate to="/" />} /> {/* フォールバックは最後に */}
     </Routes>
   );
 }
