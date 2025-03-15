@@ -7,12 +7,14 @@ type Priority = 'must' | 'preferred' | 'optional';
 
 const CATEGORIES = ['食品', '日用品', '野菜・果物', '飲み物', 'その他'];
 
+// 音声通知用関数
 function speak(message: string) {
   const utterance = new SpeechSynthesisUtterance(message);
   utterance.lang = 'ja-JP';
   window.speechSynthesis.speak(utterance);
 }
 
+// 買い物リスト表示・手動追加用コンポーネント
 export function ShoppingList() {
   const [items, setItems] = useState<ShoppingItem[]>([]);
   const [newItemName, setNewItemName] = useState('');
@@ -41,7 +43,7 @@ export function ShoppingList() {
     }
   }
 
-  // 手動追加ボタン用：認証済みユーザー情報を取得してテーブルに挿入する
+  // 手動追加ボタン用
   async function addItem() {
     if (!newItemName.trim()) return;
     try {
@@ -202,20 +204,22 @@ export function ShoppingList() {
   );
 }
 
+// OCRCapture コンポーネント：タブ切替で「OCR読み取り」と「直接Gemini入力」の 2 パターンを実装
 export function OCRCapture() {
-  const [showCamera, setShowCamera] = useState(false);
+  const [activeTab, setActiveTab] = useState<"ocr" | "direct">("ocr");
   const [ocrResult, setOcrResult] = useState('');
   const [geminiResult, setGeminiResult] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const [videoConstraints] = useState<{ facingMode: string }>({
-    facingMode: "environment", // デフォルトは背面カメラ
+    facingMode: "environment", // 背面カメラ利用
   });
 
   const webcamRef = useRef<Webcam>(null);
 
-  // OCR処理：Google Cloud Vision API を使って画像からテキスト抽出し、Gemini 連携を実施
+  // OCR 経由の処理：画像からテキスト抽出 → Gemini API にテキスト送信
   const processOCR = async (imageSrc: string) => {
     setLoading(true);
     setErrorMessage('');
@@ -241,7 +245,6 @@ export function OCRCapture() {
       );
       const visionResult = await visionResponse.json();
       const extractedText = visionResult.responses?.[0]?.fullTextAnnotation?.text || '';
-
       if (!extractedText) {
         throw new Error('OCR結果が空です');
       }
@@ -256,12 +259,12 @@ export function OCRCapture() {
     }
   };
 
-  // Gemini API 呼び出し：Gemini 2.0 Flash を利用して買い物リスト形式に変換する
+  // Gemini API にテキスト入力（OCR 経由）の場合
   const processGemini = async (ocrText: string) => {
     setLoading(true);
     setErrorMessage('');
     try {
-      const promptText = `以下のテキストから、買い物リストとして適切な商品名と数量（あれば）を箇条書きにしてください。\n\n${ocrText}`;
+      const promptText = `以下のテキストから、買い物リストとして適切な商品名と数量（あれば）を抽出してください。\n\n${ocrText}`;
       const modelName = "gemini-2.0-flash";
       const geminiApiKey = import.meta.env.VITE_GOOGLE_AI_STUDIO_API_KEY;
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`;
@@ -308,14 +311,77 @@ export function OCRCapture() {
     }
   };
 
-  // カメラで撮影した画像を取得し、OCR処理へ渡す
+  // 直接 Gemini への入力：画像とプロンプトをマルチモーダルで送信
+  const processGeminiFromImage = async (imageSrc: string) => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const promptText = "以下の画像から、買い物リストとして適切な商品名と数量（あれば）を抽出してください。";
+      const [prefix, base64Data] = imageSrc.split(',');
+      const mimeTypeMatch = prefix.match(/data:(.*?);base64/);
+      const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : "image/jpeg";
+      const modelName = "gemini-2.0-flash";
+      const geminiApiKey = import.meta.env.VITE_GOOGLE_AI_STUDIO_API_KEY;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`;
+      const geminiRequestBody = {
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: promptText }],
+          },
+          {
+            role: "user",
+            parts: [{ inlineData: { data: base64Data, mimeType: mimeType } }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.5,
+          topK: 64,
+          topP: 0.95,
+          maxOutputTokens: 100,
+          responseMimeType: "text/plain",
+        },
+      };
+
+      const geminiResponse = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(geminiRequestBody),
+      });
+      const geminiResultJson = await geminiResponse.json();
+
+      if (geminiResultJson.error) {
+        console.error("Gemini API error:", geminiResultJson.error);
+        setGeminiResult("変換に失敗しました");
+        setErrorMessage(`Gemini API エラー: ${geminiResultJson.error.message || JSON.stringify(geminiResultJson.error)}`);
+      } else {
+        const shoppingListText = geminiResultJson.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        if (!shoppingListText) {
+          throw new Error("Gemini APIから有効なテキストが返されませんでした");
+        }
+        setGeminiResult(shoppingListText);
+      }
+    } catch (error) {
+      console.error("Gemini API error:", error);
+      setGeminiResult("変換に失敗しました");
+      setErrorMessage("Gemini API 呼び出し中にエラーが発生しました。" + (error instanceof Error ? error.message : ""));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // カメラで撮影した画像を取得し、選択中のタブに応じた処理を実行
   const captureImage = () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
         setCapturedImage(imageSrc);
         setShowCamera(false);
-        processOCR(imageSrc);
+        if (activeTab === "ocr") {
+          processOCR(imageSrc);
+        } else {
+          processGeminiFromImage(imageSrc);
+        }
       }
     }
   };
@@ -329,13 +395,16 @@ export function OCRCapture() {
         const result = e.target?.result;
         const imageSrc = typeof result === "string" ? result : "";
         setCapturedImage(imageSrc);
-        processOCR(imageSrc);
+        if (activeTab === "ocr") {
+          processOCR(imageSrc);
+        } else {
+          processGeminiFromImage(imageSrc);
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Supabase に買い物リストアイテムを追加する関数
   const addItemToShoppingList = async (itemText: string) => {
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -345,8 +414,8 @@ export function OCRCapture() {
       const { error } = await supabase.from('shopping_items').insert([
         {
           name: itemText,
-          priority: "preferred", // 例として 'preferred'
-          category: "その他",    // 固定で 'その他'
+          priority: "preferred", // 固定例
+          category: "その他",
           user_id: user.id,
         },
       ]);
@@ -358,12 +427,10 @@ export function OCRCapture() {
     }
   };
 
-  // 「買い物リストに追加」ボタン押下時の処理
   const handleAddToShoppingList = () => {
     if (!geminiResult) return;
     const confirmed = window.confirm("この内容で買い物リストに追加しますか？");
     if (confirmed) {
-      // 各行をトリムしたあと、"買い物リスト" や "買物リスト" という見出しを除外する
       const items = geminiResult
         .split('\n')
         .map(line => line.trim())
@@ -378,14 +445,32 @@ export function OCRCapture() {
 
   return (
     <div className="space-y-6">
-      {/* OCR & Gemini 変換用 UI */}
+      {/* タブ切り替え UI */}
+      <div className="flex space-x-4 mb-4">
+        <button
+          onClick={() => setActiveTab("ocr")}
+          className={`px-4 py-2 border rounded ${activeTab === "ocr" ? "bg-blue-600 text-white" : "bg-white text-gray-800"}`}
+        >
+          OCR読み取り
+        </button>
+        <button
+          onClick={() => setActiveTab("direct")}
+          className={`px-4 py-2 border rounded ${activeTab === "direct" ? "bg-blue-600 text-white" : "bg-white text-gray-800"}`}
+        >
+          直接Gemini入力
+        </button>
+      </div>
+
+      {/* 画像取得＆処理用 UI */}
       <div className="bg-white shadow rounded-lg p-6">
         <div className="text-center">
           <h2 className="text-lg font-medium text-gray-900">
-            メモ・レシート読み取り & 買い物リスト変換
+            {activeTab === "ocr" ? "OCR読み取り & 買い物リスト変換" : "画像から買い物リスト変換"}
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            画像からテキストを抽出し、買い物リストとして整形します。
+            {activeTab === "ocr"
+              ? "画像からテキストを抽出し、買い物リストとして整形します。"
+              : "画像から品物っぽいモノを読み取って、買い物リストとして整形します。"}
           </p>
           <div className="mt-6">
             <button
@@ -426,10 +511,8 @@ export function OCRCapture() {
         </div>
       )}
 
-      {/* ローディングインジケーター */}
       {loading && <p className="text-center text-gray-500">処理中...</p>}
 
-      {/* エラー表示 */}
       {errorMessage && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">エラー:</strong>
@@ -437,15 +520,6 @@ export function OCRCapture() {
         </div>
       )}
 
-      {/* OCR結果の表示 */}
-      {ocrResult && (
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">OCR結果</h3>
-          <pre className="whitespace-pre-wrap text-gray-800">{ocrResult}</pre>
-        </div>
-      )}
-
-      {/* Gemini 変換結果（買い物リスト候補）の表示 */}
       {geminiResult && (
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">買い物リスト候補</h3>
