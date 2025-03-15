@@ -11,6 +11,8 @@ import { supabase } from './lib/supabase';
 import { AlbumPage } from "./components/AlbumPage";
 import  Recommend from './components/Recommend';
 import  Game from './components/Game';
+import  Rank from './components/Rank';
+import  King from './components/King';
 
 function MainTabs() {
   const navigate = useNavigate();
@@ -85,6 +87,8 @@ function App() {
       <Route path="/Recommend" element={<Recommend />} />
       <Route path="/Game" element={< Game />} />
       <Route path="/album" element={<AlbumPage />} />
+      <Route path="/Rank" element={<Rank />} />
+      <Route path="/King" element={<King />} />
       <Route path="*" element={<Navigate to="/" />} /> {/* フォールバックは最後に */}
     </Routes>
   );
