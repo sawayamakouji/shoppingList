@@ -207,9 +207,9 @@ export function OCRCapture() {
   const [ocrResult, setOcrResult] = useState('');
   const [geminiResult, setGeminiResult] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [setCapturedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [videoConstraints, setVideoConstraints] = useState<{ facingMode: string }>({
+  const [videoConstraints] = useState<{ facingMode: string }>({
     facingMode: "environment", // デフォルトは背面カメラ
   });
 
