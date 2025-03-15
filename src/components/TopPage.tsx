@@ -52,10 +52,10 @@ export function TopPage() {
           💎ごほうび👑
         </button>
         <button
-            onClick={() => navigate('/album')}
-            className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
-          >
-            📷 写真
+          onClick={() => navigate('/album')}
+          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+        >
+          📷 写真
         </button>
         <button
           onClick={() => navigate('/Game')}
@@ -63,13 +63,58 @@ export function TopPage() {
         >
           🎮暇つぶし
         </button>
-        
         <button
           onClick={() => window.location.href = 'https://suzuri.jp/7DbpRihzKefprwx'}
           className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-green-500 rounded-lg hover:bg-red-600 transition-colors"
         >
           スペシャルショップ
         </button>
+      </div>
+
+      {/* 6人の丸いアイコンリンク */}
+      <div className="mt-12 flex justify-around w-full max-w-md">
+        <div className="cursor-pointer" onClick={() => navigate('/page1')}>
+          <img
+            src="/images/icon1.jpg"  // ここは各自の画像パスに変更してください
+            alt="Page 1"
+            className="w-16 h-16 rounded-full object-cover"
+          />
+        </div>
+        <div className="cursor-pointer" onClick={() => navigate('/page2')}>
+          <img
+            src="/images/icon2.jpg"
+            alt="Page 2"
+            className="w-16 h-16 rounded-full object-cover"
+          />
+        </div>
+        <div className="cursor-pointer" onClick={() => navigate('/page3')}>
+          <img
+            src="/images/icon3.jpg"
+            alt="Page 3"
+            className="w-16 h-16 rounded-full object-cover"
+          />
+        </div>
+        <div className="cursor-pointer" onClick={() => navigate('/page4')}>
+          <img
+            src="/images/icon4.jpg"
+            alt="Page 4"
+            className="w-16 h-16 rounded-full object-cover"
+          />
+        </div>
+        <div className="cursor-pointer" onClick={() => navigate('/page5')}>
+          <img
+            src="/images/icon5.jpg"
+            alt="Page 5"
+            className="w-16 h-16 rounded-full object-cover"
+          />
+        </div>
+        <div className="cursor-pointer" onClick={() => navigate('/page6')}>
+          <img
+            src="/images/icon6.jpg"
+            alt="Page 6"
+            className="w-16 h-16 rounded-full object-cover"
+          />
+        </div>
       </div>
     </div>
   );
