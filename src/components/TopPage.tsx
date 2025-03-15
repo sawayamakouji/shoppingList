@@ -1,6 +1,12 @@
 // src/components/TopPage.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import icon001 from '../images/001.jpg';
+import icon002 from '../images/002.jpg';
+import icon003 from '../images/003.jpg';
+import icon004 from '../images/004.jpg';
+import icon005 from '../images/005.jpg';
+import icon006 from '../images/006.jpg';
 
 export function TopPage() {
   const navigate = useNavigate();
@@ -73,47 +79,23 @@ export function TopPage() {
 
       {/* 6人の丸いアイコンリンク */}
       <div className="mt-12 flex justify-around w-full max-w-md">
-        <div className="cursor-pointer" onClick={() => navigate('/page1')}>
-          <img
-            src="/images/icon1.jpg"  // ここは各自の画像パスに変更してください
-            alt="Page 1"
-            className="w-16 h-16 rounded-full object-cover"
-          />
+      <div className="cursor-pointer" onClick={() => window.open('https://x.com/shuyin02')}>
+        <img src={icon001} alt="アイコン" className="w-16 h-16 rounded-full object-cover" />
         </div>
-        <div className="cursor-pointer" onClick={() => navigate('/page2')}>
-          <img
-            src="/images/icon2.jpg"
-            alt="Page 2"
-            className="w-16 h-16 rounded-full object-cover"
-          />
+        <div className="cursor-pointer" onClick={() => window.open( 'https://x.com/okinakamasayos1')}>
+        <img src={icon002} alt="アイコン" className="w-16 h-16 rounded-full object-cover" />
         </div>
-        <div className="cursor-pointer" onClick={() => navigate('/page3')}>
-          <img
-            src="/images/icon3.jpg"
-            alt="Page 3"
-            className="w-16 h-16 rounded-full object-cover"
-          />
+        <div className="cursor-pointer" onClick={() => window.open( 'https://x.com/aya451778')}>
+        <img src={icon003} alt="アイコン" className="w-16 h-16 rounded-full object-cover" />
         </div>
-        <div className="cursor-pointer" onClick={() => navigate('/page4')}>
-          <img
-            src="/images/icon4.jpg"
-            alt="Page 4"
-            className="w-16 h-16 rounded-full object-cover"
-          />
+        <div className="cursor-pointer" onClick={() => window.open('https://x.com/YUI447486742018')}>
+        <img src={icon004} alt="アイコン" className="w-16 h-16 rounded-full object-cover" />
         </div>
-        <div className="cursor-pointer" onClick={() => navigate('/page5')}>
-          <img
-            src="/images/icon5.jpg"
-            alt="Page 5"
-            className="w-16 h-16 rounded-full object-cover"
-          />
+        <div className="cursor-pointer" onClick={() => window.open('https://x.com/isocchi1123')}>
+        <img src={icon005} alt="アイコン" className="w-16 h-16 rounded-full object-cover" />
         </div>
-        <div className="cursor-pointer" onClick={() => navigate('/page6')}>
-          <img
-            src="/images/icon6.jpg"
-            alt="Page 6"
-            className="w-16 h-16 rounded-full object-cover"
-          />
+        <div className="cursor-pointer" onClick={() => window.open( 'https://x.com/7DbpRihzKefprwx')}>
+        <img src={icon006} alt="アイコン" className="w-16 h-16 rounded-full object-cover" />
         </div>
       </div>
     </div>
