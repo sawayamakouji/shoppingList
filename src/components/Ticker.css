@@ -1,0 +1,14 @@
+@keyframes scroll {
+    0% {
+      transform: translateX(10%);
+    }
+    100% {
+      transform: translateX(-10%);
+    }
+  }
+  
+
+  .ticker-text {
+    font-size: 24px; /* 好みのサイズに調整してな */
+  }
+  
