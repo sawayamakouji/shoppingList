@@ -10,29 +10,29 @@ import './Ticker.css'; // ティッカー用のCSS
 
 
 
-// ティッカーコンポーネント
 function Ticker() {
   const messages = [
-    "ようこそ！本日のお得情報とニュースをお届けします！",
+    "ようこそ！本日の笑いとお得情報をお届けします！",
     "速報：今夜はハンバーグにしませんか？牛豚あいびきミンチセール中",
     "限定情報：新商品  果汁たっぷりグミ ゴーヤ味！おすすめです！",
-    "ニュース：中央第二高校甲子園進出決定です！",
+    "ニュース：○○高校甲子園進出決定です！",
     "健康速報：早寝早起き！",
     "イベント案内：地域のお祭りで試食会開催、シェフいそっちのめちゃウマカレーライス食べに来てね！",
     "注目：4月のアルミニウム先物市場 予測より８%アップ 米大統領選挙結果受け",
     "本日の運勢：7月生まれさん靴下は左脚からはいて今日の運勢アップです",
     "ニュース：稲多町の山本武三さん フルマラソン2時間切り！",
-    "速報：店の周り雨降っています！！！   全部読んだ？？    暇なの？？？"
+    "速報：店の周り雨降っています！！！"
   ];
   const text = messages.join(" ★✌★ ");
+
   return (
-    <div className="overflow-hidden bg-gray-100 py-2 my-4">
-<div
-  className="inline-block whitespace-nowrap ticker-text"
-  style={{ animation: "scroll 190s linear infinite" }}
->
-  {text}
-</div>
+    <div className="w-full overflow-hidden bg-gray-100 py-2 my-4">
+      <div
+        className="inline-block whitespace-nowrap ticker-text"
+        style={{ animation: "scroll 80s linear infinite" }}
+      >
+        {text}
+      </div>
     </div>
   );
 }
