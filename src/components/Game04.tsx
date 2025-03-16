@@ -1,297 +1,665 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-const Game02 = () => {
-  // 麻雀牌の定義
-  const suits = {
-    m: '萬子',
-    p: '筒子',
-    s: '索子',
-    z: '字牌'
+const TouchTypingGame = () => {
+  const [gameState, setGameState] = useState('menu'); // menu, game, result
+  const [difficulty, setDifficulty] = useState('easy');
+  const [category, setCategory] = useState('kotowaza');
+  const [currentText, setCurrentText] = useState('');
+  const [inputText, setInputText] = useState('');
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [score, setScore] = useState(0);
+  const [correctChars, setCorrectChars] = useState(0);
+  const [totalChars, setTotalChars] = useState(0);
+  const [completedTexts, setCompletedTexts] = useState(0);
+  const [showKeyboard, setShowKeyboard] = useState(false);
+  const [currentChar, setCurrentChar] = useState('');
+  const inputRef = useRef(null);
+  
+  // 難易度設定
+  const getDifficultyConfig = () => {
+    switch (difficulty) {
+      case 'easy':
+        return {
+          timeLimit: 60,
+          textLength: 'short',
+          hintLevel: 'high'
+        };
+      case 'medium':
+        return {
+          timeLimit: 90,
+          textLength: 'medium',
+          hintLevel: 'medium'
+        };
+      case 'hard':
+        return {
+          timeLimit: 120,
+          textLength: 'long',
+          hintLevel: 'low'
+        };
+      default:
+        return {
+          timeLimit: 60,
+          textLength: 'short',
+          hintLevel: 'high'
+        };
+    }
   };
 
-  const zPai = ['東', '南', '西', '北', '白', '發', '中'];
+  // カテゴリに基づいてテキストを取得
+  const getTextsForCategory = () => {
+    switch (category) {
+      case 'kotowaza':
+        return {
+          short: [
+            '石の上にも三年',
+            '急がば回れ',
+            '塵も積もれば山となる',
+            '見ぬが花',
+            '時は金なり',
+            '犬も歩けば棒に当たる',
+            '猿も木から落ちる',
+            '論より証拠',
+            '弘法も筆の誤り',
+            '朱に交われば赤くなる'
+          ],
+          medium: [
+            '石橋を叩いて渡る',
+            '出る杭は打たれる',
+            '早起きは三文の徳',
+            '芸は身を助ける',
+            '果報は寝て待て',
+            '二兎を追う者は一兎をも得ず',
+            '三つ子の魂百まで',
+            '類は友を呼ぶ',
+            '馬の耳に念仏',
+            '捕らぬ狸の皮算用'
+          ],
+          long: [
+            '悪銭身につかず',
+            '去る者は日々に疎し',
+            '切れ物には刃物の錆',
+            '火のない所に煙は立たぬ',
+            '情けは人のためならず',
+            '短気は損気',
+            '備えあれば憂いなし',
+            '花より団子',
+            '身から出た錆',
+            '好きこそものの上手なれ'
+          ]
+        };
+      case 'season':
+        return {
+          short: [
+            '春の桜',
+            '夏の花火',
+            '秋の紅葉',
+            '冬の雪景色',
+            '春の小川',
+            '夏の海',
+            '秋の満月',
+            '冬の温泉',
+            '春の風',
+            '夏の夕立'
+          ],
+          medium: [
+            '春は桜が満開です',
+            '夏は海水浴に行きます',
+            '秋は紅葉狩りを楽しみます',
+            '冬はこたつで温まります',
+            '春の新緑は美しいです',
+            '夏祭りの屋台が楽しみです',
+            '秋の夜長に読書をします',
+            '冬の雪景色は静かです',
+            '春の訪れを感じる梅の花',
+            '夏バテには気をつけましょう'
+          ],
+          long: [
+            '春になると桜が咲いて心が弾みます',
+            '夏の暑い日には冷たいスイカが美味しいです',
+            '秋の夕暮れはどこか寂しい気持ちになります',
+            '冬の朝は窓に霜が降りていることがあります',
+            '春の雨は静かに大地を潤してくれます',
+            '夏の夜空には綺麗な星が輝いています',
+            '秋になると虫の声が聞こえてきます',
+            '冬の雪の朝は世界が白く輝いています',
+            '春の風は心を明るくしてくれます',
+            '夏の海岸で波の音を聞くのは心地よいです'
+          ]
+        };
+      case 'health':
+        return {
+          short: [
+            '深呼吸',
+            '水分補給',
+            '適度な運動',
+            '腹八分目',
+            '早寝早起き',
+            '姿勢を正す',
+            '栄養バランス',
+            '休息を取る',
+            '笑顔が健康',
+            '歩くことが大切'
+          ],
+          medium: [
+            '毎日深呼吸をしましょう',
+            '水をたくさん飲むことが大切です',
+            '適度な運動を心がけましょう',
+            '腹八分目で健康になります',
+            '早寝早起きは健康の基本です',
+            '正しい姿勢を保ちましょう',
+            '栄養バランスを考えて食べましょう',
+            '十分な休息を取ることが大切です',
+            '笑顔は健康の源です',
+            '一日三十分歩きましょう'
+          ],
+          long: [
+            '毎日深呼吸をして心身をリフレッシュしましょう',
+            '水分をこまめに取ることで体調を整えましょう',
+            '適度な運動は健康な体を維持するのに役立ちます',
+            '食事は腹八分目にして消化器官に負担をかけないようにしましょう',
+            '早寝早起きを心がけてリズムのある生活を送りましょう',
+            '姿勢を正すことで腰や肩の痛みを防ぐことができます',
+            '栄養バランスの良い食事で健康な体を作りましょう',
+            '適切な休息を取ることで疲れを溜めないようにしましょう',
+            '笑顔でいることで免疫力が上がるとも言われています',
+            '毎日歩くことで足腰を強くし健康を維持しましょう'
+          ]
+        };
+      default:
+        return {
+          short: ['こんにちは', 'ありがとう', 'さようなら'],
+          medium: ['今日はいい天気ですね', 'おいしい料理ですね', 'また会いましょう'],
+          long: ['日本の四季は本当に美しいですね', '健康で過ごすことが一番大切です', '毎日少しずつ成長していきたいですね']
+        };
+    }
+  };
 
-  // 牌の表示名とイメージを取得する関数
-  const getTileName = (tile) => {
-    const suit = tile.charAt(tile.length - 1);
-    const number = tile.substring(0, tile.length - 1);
-    
-    if (suit === 'z') {
-      return zPai[parseInt(number) - 1];
+  // ランダムなテキストを取得
+  const getRandomText = () => {
+    const config = getDifficultyConfig();
+    const texts = getTextsForCategory();
+    const textArray = texts[config.textLength];
+    return textArray[Math.floor(Math.random() * textArray.length)];
+  };
+
+  // ゲームの初期化
+  const initializeGame = () => {
+    const config = getDifficultyConfig();
+    setTimeLeft(config.timeLimit);
+    setScore(0);
+    setCorrectChars(0);
+    setTotalChars(0);
+    setCompletedTexts(0);
+    setInputText('');
+    setCurrentText(getRandomText());
+    setGameState('game');
+  };
+
+  // 次のテキストに進む
+  const nextText = () => {
+    setInputText('');
+    setCurrentText(getRandomText());
+    setCompletedTexts(completedTexts + 1);
+  };
+
+  // テキスト入力処理
+  const handleTextChange = (e) => {
+    const newText = e.target.value;
+    setInputText(newText);
+
+    // 次の文字をハイライト表示するために設定
+    if (newText.length < currentText.length) {
+      setCurrentChar(currentText[newText.length]);
     } else {
-      return `${number}${suits[suit]}`;
-    }
-  };
-  
-  // 牌のイメージと色を取得する関数
-  const getTileImage = (tile) => {
-    const suit = tile.charAt(tile.length - 1);
-    const number = parseInt(tile.substring(0, tile.length - 1));
-    
-    if (suit === 'm') {
-      // 萬子
-      if (number === 1) return '🀇';
-      if (number === 2) return '🀈';
-      if (number === 3) return '🀉';
-      if (number === 4) return '🀊';
-      if (number === 5) return '🀋';
-      if (number === 6) return '🀌';
-      if (number === 7) return '🀍';
-      if (number === 8) return '🀎';
-      if (number === 9) return '🀏';
-    } else if (suit === 'p') {
-      // 筒子
-      if (number === 1) return '🀙';
-      if (number === 2) return '🀚';
-      if (number === 3) return '🀛';
-      if (number === 4) return '🀜';
-      if (number === 5) return '🀝';
-      if (number === 6) return '🀞';
-      if (number === 7) return '🀟';
-      if (number === 8) return '🀠';
-      if (number === 9) return '🀡';
-    } else if (suit === 's') {
-      // 索子
-      if (number === 1) return '🀐';
-      if (number === 2) return '🀑';
-      if (number === 3) return '🀒';
-      if (number === 4) return '🀓';
-      if (number === 5) return '🀔';
-      if (number === 6) return '🀕';
-      if (number === 7) return '🀖';
-      if (number === 8) return '🀗';
-      if (number === 9) return '🀘';
-    } else if (suit === 'z') {
-      // 字牌
-      if (number === 1) return '🀀'; // 東
-      if (number === 2) return '🀁'; // 南
-      if (number === 3) return '🀂'; // 西
-      if (number === 4) return '🀃'; // 北
-      if (number === 5) return '🀆'; // 白
-      if (number === 6) return '🀅'; // 發
-      if (number === 7) return '🀄'; // 中
+      setCurrentChar('');
     }
     
-    return '❓'; // 不明な牌
-  };
-  
-  // 牌の種類によって色を取得する関数
-  const getTileColor = (tile) => {
-    const suit = tile.charAt(tile.length - 1);
-    const number = parseInt(tile.substring(0, tile.length - 1));
-    
-    if (suit === 'm') {
-      // 萬子 - 青色系
-      return 'text-blue-700';
-    } else if (suit === 'p') {
-      // 筒子 - 緑色系
-      return 'text-green-700';
-    } else if (suit === 's') {
-      // 索子 - 茶色系
-      return 'text-yellow-800';
-    } else if (suit === 'z') {
-      // 字牌
-      if (number >= 1 && number <= 4) {
-        // 風牌 - 黒色
-        return 'text-gray-800';
-      } else {
-        // 三元牌
-        if (number === 5) return 'text-gray-600'; // 白
-        if (number === 6) return 'text-green-800'; // 發
-        if (number === 7) return 'text-red-700'; // 中
+    // 入力が完了したか確認
+    if (newText === currentText) {
+      // 正解としてカウント
+      setCorrectChars(correctChars + newText.length);
+      setTotalChars(totalChars + newText.length);
+      
+      // スコア計算：タイプした文字数 × 10点
+      setScore(score + newText.length * 10);
+      
+      // 次のテキストへ
+      setTimeout(nextText, 500);
+    } else if (newText.length > 0) {
+      // 入力中の正誤判定
+      let correct = 0;
+      for (let i = 0; i < newText.length; i++) {
+        if (i < currentText.length && newText[i] === currentText[i]) {
+          correct++;
+        }
+      }
+      
+      // 総タイプ文字数を更新
+      setTotalChars(totalChars + 1);
+      
+      // 正確なタイプ文字数を更新
+      if (newText.length <= currentText.length && newText[newText.length - 1] === currentText[newText.length - 1]) {
+        setCorrectChars(correctChars + 1);
       }
     }
-    
-    return 'text-black'; // デフォルト
   };
 
-  // クイズのデータ
-  const quizData = [
-    {
-      id: 1,
-      hand: ['1m', '1m', '2m', '3m', '2p', '3p', '4p', '6s', '7s', '8s', '5z', '5z', '5z'],
-      options: ['1m', '2m', '3m', '2p', '3p', '4p', '6s', '7s', '8s'],
-      correctAnswer: '2m',
-      explanation: '1m, 2m, 3mの形は両面待ちになっていますが、既に1mが2枚あるため、2mを切って1m, 3mの嵌張待ちにするより、2mを残して1m, 2m, 3mの形を保った方が良いです。また、2p, 3p, 4pと6s, 7s, 8sは完成した面子なので切るべきではありません。'
-    },
-    {
-      id: 2,
-      hand: ['2m', '3m', '4m', '2p', '3p', '4p', '5p', '5p', '5s', '6s', '7s', '1z', '1z'],
-      options: ['2m', '4m', '2p', '4p', '5p', '5s', '7s', '1z'],
-      correctAnswer: '1z',
-      explanation: '手牌には既に2つの完成した面子（2m, 3m, 4mと2p, 3p, 4p）と、雀頭候補（5p, 5p）があります。また、5s, 6s, 7sは良形の塔子です。1zは役に繋がりにくい孤立牌なので切るのが最適です。'
-    },
-    {
-      id: 3,
-      hand: ['1m', '2m', '3m', '4m', '5m', '6m', '2p', '3p', '7s', '8s', '9s', '9s', '9s'],
-      options: ['1m', '6m', '2p', '3p', '7s'],
-      correctAnswer: '2p',
-      explanation: '1m〜6mは一気通貫の可能性を持つ良形です。7s, 8s, 9sと9s, 9s, 9sは完成した面子です。2p, 3pは孤立した塔子で、しかも2pと3pの間には他の牌との連携がないため、2pか3pを切るべきです。2pの方が壁になっている可能性が高いので2pを切ります。'
-    },
-    {
-      id: 4,
-      hand: ['1m', '1m', '1m', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', '6z', '7z'],
-      options: ['2s', '9s', '6z', '7z'],
-      correctAnswer: '7z',
-      explanation: '手牌には既に一つの刻子（1m, 1m, 1m）と索子の2s〜9sまでがあり、一気通貫や清一色の可能性があります。6z（發）と7z（中）は役牌になる可能性がありますが、7z単独よりも6zの方が發と組み合わせて役牌になる可能性が高いため、7zを切ります。'
-    },
-    {
-      id: 5,
-      hand: ['2m', '3m', '4m', '3p', '4p', '5p', '5p', '5p', '6p', '7p', '8p', '6s', '7s'],
-      options: ['2m', '4m', '3p', '5p', '8p', '6s', '7s'],
-      correctAnswer: '6s',
-      explanation: '筒子（p）で多くの良形が揃っています。3p, 4p, 5pと5p, 6p, 7pの面子、さらに5p, 5p, 5pの刻子があります。また、2m, 3m, 4mも完成面子です。6s, 7sは孤立した塔子なので、どちらかを切るべきです。筒子の手を活かすなら、索子は切った方が良いでしょう。'
-    },
-    {
-      id: 6,
-      hand: ['1m', '2m', '3m', '1p', '2p', '3p', '1s', '2s', '3s', '4z', '4z', '5z', '5z'],
-      options: ['3m', '3p', '3s', '4z', '5z'],
-      correctAnswer: '4z',
-      explanation: '三色同順の形（1m, 2m, 3m、1p, 2p, 3p、1s, 2s, 3s）が完成しています。残りは4z, 4z（北）と5z, 5z（白）で、どちらかを雀頭にすることになります。北は役にならないことが多いですが、白は役牌になるため、白を残して北を切るのが良いでしょう。'
-    },
-    {
-      id: 7,
-      hand: ['2m', '3m', '4m', '7m', '8m', '9m', '2p', '3p', '4p', '6s', '7s', '8s', '9s'],
-      options: ['2m', '9m', '2p', '4p', '6s', '9s'],
-      correctAnswer: '9s',
-      explanation: '手牌には3つの完成面子（2m, 3m, 4m、7m, 8m, 9m、2p, 3p, 4p）があります。6s, 7s, 8s, 9sの中から1枚切る必要がありますが、6s, 7s, 8sは両面待ちの可能性がある良形なので、9sを切るのが最適です。'
-    },
-    {
-      id: 8,
-      hand: ['1m', '2m', '3m', '4m', '5m', '6m', '7m', '8m', '3p', '4p', '5p', '7z', '7z'],
-      options: ['1m', '8m', '3p', '5p', '7z'],
-      correctAnswer: '7z',
-      explanation: '1m〜8mまでの良形があり、清一色や一気通貫の可能性があります。3p, 4p, 5pも完成した面子ですが、7z, 7z（中）は他の牌と組み合わせて役を作る可能性が低いです。清一色や一気通貫を目指すなら、字牌の7zを切るのが良いでしょう。ただし、既に雀頭として使える7z, 7zがあるため、もう一つの選択肢としては筒子の面子を切る選択肢もあります。'
-    },
-    {
-      id: 9,
-      hand: ['1m', '1m', '1m', '2m', '3m', '4m', '5m', '6m', '7m', '2s', '3s', '4s', '6z'],
-      options: ['7m', '2s', '4s', '6z'],
-      correctAnswer: '6z',
-      explanation: '萬子で清一色に近い形になっています。1m, 1m, 1mの刻子と、2m〜7mの連続した塔子があります。2s, 3s, 4sは完成した面子ですが、6z（發）は孤立牌です。清一色を目指すなら索子の面子を切るべきですが、既に完成しているため、孤立している6zを切る方が良いでしょう。'
-    },
-    {
-      id: 10,
-      hand: ['2m', '3m', '4m', '4p', '5p', '6p', '4s', '5s', '6s', '1z', '1z', '7z', '7z'],
-      options: ['2m', '4p', '6p', '4s', '6s', '1z', '7z'],
-      correctAnswer: '1z',
-      explanation: '三色同順（2m, 3m, 4m、4p, 5p, 6p、4s, 5s, 6s）が完成しており、1z, 1z（東）と7z, 7z（中）の2つの雀頭候補があります。中は三元牌で役牌になりますが、東は自風牌でない限り役にはなりません。そのため、東を切るのが最適です。'
-    }
-  ];
-
-  // ステート管理
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [score, setScore] = useState(0);
-  const [showResults, setShowResults] = useState(false);
-
-  // 現在の問題
-  const currentQuestion = quizData[currentQuestionIndex];
-
-  // 選択肢をクリックしたときの処理
-  const handleOptionClick = (option) => {
-    if (isAnswered) return;
-    
-    setSelectedOption(option);
-    setIsAnswered(true);
-    
-    if (option === currentQuestion.correctAnswer) {
-      setScore(score + 1);
-    }
-  };
-
-  // 次の問題へ進む
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < quizData.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedOption(null);
-      setIsAnswered(false);
-    } else {
-      // 最終問題終了後は結果表示
-      setShowResults(true);
-    }
-  };
-
-  // 再挑戦ボタンの処理
-  const handleRestart = () => {
-    setCurrentQuestionIndex(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setScore(0);
-    setShowResults(false);
-  };
-
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">麻雀の捨て牌クイズ</h1>
+  // 仮想キーボードの入力処理
+  const handleVirtualKeyPress = (char) => {
+    // 特殊キーの処理
+    if (char === '←') {
+      // バックスペース
+      setInputText(inputText.slice(0, -1));
+    } else if (char === '空白') {
+      // スペース
+      const newText = inputText + ' ';
+      setInputText(newText);
       
-      {showResults ? (
-        <div>
-          <h2 className="text-xl mb-4">結果発表</h2>
-          <p>
-            {score} / {quizData.length} 問正解
-          </p>
-          <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={handleRestart}>
-            再挑戦する
+      // 次の文字をハイライト表示するために設定
+      if (newText.length < currentText.length) {
+        setCurrentChar(currentText[newText.length]);
+      } else {
+        setCurrentChar('');
+      }
+      
+      // 入力が完了したか確認
+      if (newText === currentText) {
+        setCorrectChars(correctChars + newText.length);
+        setTotalChars(totalChars + newText.length);
+        setScore(score + newText.length * 10);
+        setTimeout(nextText, 500);
+      }
+    } else {
+      // 通常の文字
+      const newText = inputText + char;
+      setInputText(newText);
+      
+      // 次の文字をハイライト表示するために設定
+      if (newText.length < currentText.length) {
+        setCurrentChar(currentText[newText.length]);
+      } else {
+        setCurrentChar('');
+      }
+      
+      // 入力が完了したか確認
+      if (newText === currentText) {
+        setCorrectChars(correctChars + newText.length);
+        setTotalChars(totalChars + newText.length);
+        setScore(score + newText.length * 10);
+        setTimeout(nextText, 500);
+      } else {
+        // 総タイプ文字数を更新
+        setTotalChars(totalChars + 1);
+        
+        // 正確なタイプ文字数を更新
+        if (newText.length <= currentText.length && newText[newText.length - 1] === currentText[newText.length - 1]) {
+          setCorrectChars(correctChars + 1);
+        }
+      }
+    }
+  };
+
+  // タイマー
+  useEffect(() => {
+    let timer;
+    if (gameState === 'game' && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prevTime => {
+          if (prevTime <= 1) {
+            setGameState('result');
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [gameState, timeLeft]);
+
+  // 現在のテキストが変わったときにフォーカスを設定
+  useEffect(() => {
+    if (gameState === 'game' && inputRef.current) {
+      inputRef.current.focus();
+      
+      // 次の文字をハイライト表示するために設定
+      if (inputText.length < currentText.length) {
+        setCurrentChar(currentText[inputText.length]);
+      } else {
+        setCurrentChar('');
+      }
+    }
+  }, [currentText, gameState]);
+
+  // 正確率の計算
+  const calculateAccuracy = () => {
+    if (totalChars === 0) return 100;
+    return Math.round((correctChars / totalChars) * 100);
+  };
+
+  // 文字を色分けして表示
+  const renderColoredText = () => {
+    return (
+      <div className="text-3xl font-bold tracking-wider">
+        {currentText.split('').map((char, index) => {
+          let color = 'text-gray-800'; // デフォルト色
+          
+          if (index < inputText.length) {
+            color = inputText[index] === char ? 'text-green-600' : 'text-red-600';
+          } else if (index === inputText.length) {
+            color = 'text-blue-600 bg-yellow-200 px-1 animate-pulse';
+          }
+          
+          return (
+            <span key={index} className={color}>
+              {char}
+            </span>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // 仮想キーボードを表示
+  const renderVirtualKeyboard = () => {
+    // ひらがな
+    const hiraganaRows = [
+      ['あ', 'い', 'う', 'え', 'お'],
+      ['か', 'き', 'く', 'け', 'こ'],
+      ['さ', 'し', 'す', 'せ', 'そ'],
+      ['た', 'ち', 'つ', 'て', 'と'],
+      ['な', 'に', 'ぬ', 'ね', 'の'],
+      ['は', 'ひ', 'ふ', 'へ', 'ほ'],
+      ['ま', 'み', 'む', 'め', 'も'],
+      ['や', 'ゆ', 'よ', 'わ', 'を', 'ん'],
+      ['が', 'ぎ', 'ぐ', 'げ', 'ご'],
+      ['ざ', 'じ', 'ず', 'ぜ', 'ぞ'],
+      ['だ', 'ぢ', 'づ', 'で', 'ど'],
+      ['ば', 'び', 'ぶ', 'べ', 'ぼ'],
+      ['ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ'],
+      ['ー', '、', '。', '！', '？']
+    ];
+
+    // 特殊キー
+    const specialKeys = [
+      { label: '空白', value: '空白', className: 'bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg border border-gray-400 text-lg font-bold w-20' },
+      { label: '←', value: '←', className: 'bg-red-200 hover:bg-red-300 text-red-800 py-2 px-4 rounded-lg border border-red-400 text-lg font-bold w-20' }
+    ];
+
+    return (
+      <div className="mt-4 bg-gray-100 p-3 rounded-xl max-w-md mx-auto">
+        <div className="mb-2 flex justify-between">
+          <button 
+            className="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded text-sm"
+            onClick={() => setShowKeyboard(!showKeyboard)}
+          >
+            {showKeyboard ? 'キーボードを隠す' : 'キーボードを表示'}
           </button>
         </div>
-      ) : (
-        <div>
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold">問題 {currentQuestion.id}</h2>
-            <p className="mt-2">以下の手牌の中から、最適な捨て牌を選んでください。</p>
-          </div>
-          
-          <div className="mb-4">
-            <div className="flex flex-wrap">
-              {currentQuestion.hand.map((tile, index) => (
-                <div key={index} className={`text-4xl mr-2 ${getTileColor(tile)}`}>
-                  {getTileImage(tile)}
+        
+        {showKeyboard && (
+          <div className="bg-gray-50 p-2 rounded-lg">
+            <div className="overflow-y-auto max-h-64">
+              {hiraganaRows.map((row, index) => (
+                <div key={index} className="flex flex-wrap justify-center gap-1 mb-1">
+                  {row.map(char => (
+                    <button
+                      key={char}
+                      className="bg-white hover:bg-blue-100 text-blue-800 font-bold py-2 px-3 rounded-lg border border-blue-300 text-xl transition-colors w-10 h-10 flex items-center justify-center"
+                      onClick={() => handleVirtualKeyPress(char)}
+                    >
+                      {char}
+                    </button>
+                  ))}
                 </div>
               ))}
             </div>
-          </div>
-          
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold">選択肢</h3>
-            <div className="flex flex-wrap">
-              {currentQuestion.options.map((option, index) => (
+            
+            <div className="flex justify-center gap-2 mt-2">
+              {specialKeys.map(key => (
                 <button
-                  key={index}
-                  className={`m-2 px-4 py-2 border rounded ${
-                    isAnswered
-                      ? option === currentQuestion.correctAnswer
-                        ? 'bg-green-300'
-                        : option === selectedOption
-                        ? 'bg-red-300'
-                        : ''
-                      : 'bg-white'
-                  }`}
-                  onClick={() => handleOptionClick(option)}
-                  disabled={isAnswered}
+                  key={key.value}
+                  className={key.className}
+                  onClick={() => handleVirtualKeyPress(key.value)}
                 >
-                  {getTileImage(option)} {getTileName(option)}
+                  {key.label}
                 </button>
               ))}
             </div>
           </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center p-4 bg-gradient-to-b from-blue-50 to-purple-50 min-h-screen">
+      {/* ゲーム状態に応じた戻るボタンの処理 */}
+      <div className="w-full max-w-xl mb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-2">
+          <h1 className="text-4xl font-bold text-blue-800">
+            ⌨️ タイピングゲーム
+          </h1>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-2 bg-blue-700 text-white text-lg rounded-xl font-bold hover:bg-blue-800 transition-colors shadow-md"
+              onClick={() => {
+                if (gameState === 'game') {
+                  // ゲーム中ならメニューに戻る
+                  setGameState('menu');
+                } else if (gameState === 'result') {
+                  // 結果画面ならメニューに戻る
+                  setGameState('menu');
+                } else {
+                  // それ以外の場合はブラウザの戻るを実行
+                  window.history.back();
+                }
+              }}
+            >
+              ← 戻る
+            </button>
+            <button
+              className="px-3 py-2 bg-gray-700 text-white text-lg rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-md"
+              onClick={() => window.location.href = '/'}
+            >
+              🏠 ホーム
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {gameState === 'menu' && (
+        <div className="bg-white p-6 rounded-3xl shadow-lg max-w-lg w-full">
+          <h2 className="text-3xl font-semibold mb-6 text-center">タイピングゲーム</h2>
           
-          {isAnswered && (
-            <div className="mb-4">
-              <p>
-                {selectedOption === currentQuestion.correctAnswer ? '正解っす！' : '不正解っす！'}
-              </p>
-              <p className="mt-2">{currentQuestion.explanation}</p>
-              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={handleNextQuestion}>
-                次の問題へ
+          <div className="mb-6">
+            <h3 className="text-2xl font-semibold mb-3 text-blue-700">カテゴリを選ぶ</h3>
+            <div className="flex flex-col gap-3">
+              <button
+                className={`px-5 py-4 text-2xl rounded-xl font-bold transition-colors ${category === 'kotowaza' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-700'}`}
+                onClick={() => setCategory('kotowaza')}
+              >
+                ことわざ 📜
+              </button>
+              <button
+                className={`px-5 py-4 text-2xl rounded-xl font-bold transition-colors ${category === 'season' ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-700'}`}
+                onClick={() => setCategory('season')}
+              >
+                四季・季節 🌸
+              </button>
+              <button
+                className={`px-5 py-4 text-2xl rounded-xl font-bold transition-colors ${category === 'health' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-700'}`}
+                onClick={() => setCategory('health')}
+              >
+                健康 ❤️
               </button>
             </div>
-          )}
+          </div>
+          
+          <div className="mb-6">
+            <h3 className="text-2xl font-semibold mb-3 text-blue-700">難易度を選ぶ</h3>
+            <div className="flex flex-col gap-3">
+              <button
+                className={`px-5 py-4 text-2xl rounded-xl font-bold transition-colors ${difficulty === 'easy' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-700'}`}
+                onClick={() => setDifficulty('easy')}
+              >
+                かんたん (短い文) 👵
+              </button>
+              <button
+                className={`px-5 py-4 text-2xl rounded-xl font-bold transition-colors ${difficulty === 'medium' ? 'bg-yellow-500 text-white' : 'bg-yellow-100 text-yellow-700'}`}
+                onClick={() => setDifficulty('medium')}
+              >
+                ふつう (中くらいの文) 🧓
+              </button>
+              <button
+                className={`px-5 py-4 text-2xl rounded-xl font-bold transition-colors ${difficulty === 'hard' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-700'}`}
+                onClick={() => setDifficulty('hard')}
+              >
+                むずかしい (長い文) 🏆
+              </button>
+            </div>
+          </div>
+          
+          <button
+            className="w-full px-6 py-5 bg-blue-600 text-white text-3xl rounded-xl font-bold hover:bg-blue-700 transition-colors mb-6 shadow-lg"
+            onClick={initializeGame}
+          >
+            スタート！
+          </button>
+          
+          <div className="bg-blue-50 p-5 rounded-xl border-2 border-blue-200">
+            <h3 className="text-2xl font-semibold mb-3 text-blue-800">遊び方</h3>
+            <ul className="text-xl space-y-2">
+              <li>- 表示された文章を打ち込みましょう</li>
+              <li>- 青く表示された文字を入力します</li>
+              <li>- 正しい文字は緑、間違いは赤で表示</li>
+              <li>- 制限時間内に多くの文章を打とう！</li>
+              <li>- 画面下のキーボードも使えます</li>
+            </ul>
+          </div>
+        </div>
+      )}
+      
+      {gameState === 'game' && (
+        <div className="flex flex-col items-center w-full max-w-xl">
+          <div className="w-full bg-white rounded-xl p-4 mb-4 flex justify-between items-center">
+            <div className="text-2xl font-semibold">
+              残り時間: <span className="text-red-600">{timeLeft}秒</span>
+            </div>
+            <div className="text-2xl font-semibold">
+              得点: <span className="text-purple-600">{score}</span>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-xl shadow-lg w-full mb-4">
+            <div className="mb-8">
+              {renderColoredText()}
+            </div>
+            
+            <div className="relative">
+              <input
+                ref={inputRef}
+                type="text"
+                className="w-full py-4 px-3 text-2xl border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                value={inputText}
+                onChange={handleTextChange}
+                placeholder="ここにタイプしてください"
+                autoComplete="off"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck="false"
+              />
+              
+              {currentChar && (
+                <div className="absolute left-0 right-0 -bottom-10 text-center">
+                  <span className="text-2xl text-blue-600 bg-yellow-100 px-2 py-1 rounded">
+                    次は「{currentChar}」を入力
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="bg-white p-4 rounded-xl shadow-lg w-full mb-4">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="text-center p-2 bg-blue-50 rounded-lg">
+                <div className="text-sm text-blue-800">正確率</div>
+                <div className="text-2xl font-bold text-blue-600">{calculateAccuracy()}%</div>
+              </div>
+              <div className="text-center p-2 bg-green-50 rounded-lg">
+                <div className="text-sm text-green-800">完了した文</div>
+                <div className="text-2xl font-bold text-green-600">{completedTexts}</div>
+              </div>
+            </div>
+          </div>
+          
+          {renderVirtualKeyboard()}
+        </div>
+      )}
+      
+      {gameState === 'result' && (
+        <div className="flex flex-col items-center">
+          <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-8 rounded-2xl shadow-lg text-center mb-8 max-w-lg w-full">
+            <div className="text-6xl mb-4">⌨️✨</div>
+            <h2 className="text-4xl font-bold mb-4 text-purple-800">タイピング完了！</h2>
+            
+            <div className="bg-white rounded-xl p-4 mb-4">
+              <table className="w-full text-xl">
+                <tbody>
+                  <tr>
+                    <td className="py-2 text-left">打った文字数:</td>
+                    <td className="py-2 text-right font-bold">{totalChars}文字</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-left">正確に打った文字:</td>
+                    <td className="py-2 text-right font-bold">{correctChars}文字</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-left">正確率:</td>
+                    <td className="py-2 text-right font-bold">{calculateAccuracy()}%</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-left">完了した文:</td>
+                    <td className="py-2 text-right font-bold">{completedTexts}個</td>
+                  </tr>
+                  <tr className="border-t-2 border-purple-200">
+                    <td className="py-2 text-left font-bold text-purple-800">総得点:</td>
+                    <td className="py-2 text-right font-bold text-purple-800 text-3xl">{score}点</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div className="text-2xl text-green-800 font-medium">
+              今日も指のトレーニングお疲れ様でした！
+            </div>
+          </div>
+          
+          <div className="flex gap-4 flex-wrap justify-center">
+            <button
+              className="px-6 py-4 bg-blue-600 text-white text-2xl rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg"
+              onClick={initializeGame}
+            >
+              もう一度挑戦
+            </button>
+            
+            <button
+              className="px-6 py-4 bg-purple-600 text-white text-2xl rounded-xl font-bold hover:bg-purple-700 transition-colors shadow-lg"
+              onClick={() => setGameState('menu')}
+            >
+              設定に戻る
+            </button>
+            
+            <button
+              className="px-6 py-4 bg-gray-700 text-white text-2xl rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg"
+              onClick={() => window.location.href = '/'}
+            >
+              ホームへ
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-export default Game02;
+export default TouchTypingGame;
