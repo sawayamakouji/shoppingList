@@ -1,14 +1,29 @@
-@keyframes scroll {
+/* Ticker.css */
+.ticker-text {
+    display: inline-block;
+    white-space: nowrap; /* テキストを1行に保つ */
+    animation: scroll 80s linear infinite; /* スクロールアニメーション */
+  }
+  
+  /* アニメーション定義 */
+  @keyframes scroll {
     0% {
-      transform: translateX(95%);
+      transform: translateX(100%); /* 右端からスタート */
     }
     100% {
-      transform: translateX(-100%);
+      transform: translateX(-100%); /* 左端まで移動 */
     }
   }
   
-
-  .ticker-text {
-    font-size: 24px; /* 好みのサイズに調整してな */
+  /* スマホ対応: 画面幅に合わせて調整 */
+  @media (max-width: 640px) {
+    .ticker-text {
+      font-size: 0.9rem; /* フォントサイズを小さく */
+      animation: scroll 40s linear infinite; /* スマホでは速度を速く */
+    }
   }
   
+  /* はみ出し防止 */
+  .w-full {
+    overflow-x: hidden; /* 横スクロールを隠す */
+  }
