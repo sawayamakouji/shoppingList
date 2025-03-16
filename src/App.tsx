@@ -13,6 +13,11 @@ import  Recommend from './components/Recommend';
 import  Game from './components/Game';
 import  Rank from './components/Rank';
 import  King from './components/King';
+import Game02 from "./components/Game02";
+import Game03 from "./components/Game03";
+import Game04 from "./components/Game04";
+
+
 
 function MainTabs() {
   const navigate = useNavigate();
@@ -90,6 +95,12 @@ function App() {
       <Route path="/Rank" element={<Rank />} />
       <Route path="/King" element={<King />} />
       <Route path="*" element={<Navigate to="/" />} /> {/* フォールバックは最後に */}
+      <Route path="/Game02" element={<Game02 />} />
+      <Route path="/Game03" element={<Game03 />} />
+      <Route path="/Game04" element={<Game04 />} />
+
+
+
     </Routes>
   );
 }

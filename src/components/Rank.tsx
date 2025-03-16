@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Rank = () => {
+  const navigate = useNavigate();
+
   // ランキングデータ （週間、月間、全期間）
   const rankingData = {
     weekly: [
@@ -257,11 +260,13 @@ const Rank = () => {
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-300">
         <div className="max-w-lg mx-auto grid grid-cols-2 gap-4">
           <button 
+            onClick={() => navigate(-1)}  // もどるボタンで前のページに戻る
             className="bg-gray-200 rounded-full py-4 text-2xl font-bold text-gray-800 transform transition-all duration-300 hover:bg-gray-300 active:scale-95 shadow-md"
           >
             もどる
           </button>
           <button 
+            onClick={() => navigate('/TopPage')}
             className="bg-green-500 rounded-full py-4 text-2xl font-bold text-white transform transition-all duration-300 hover:bg-green-600 active:scale-95 shadow-md"
           >
             友達を誘う

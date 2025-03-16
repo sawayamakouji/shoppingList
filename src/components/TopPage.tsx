@@ -116,11 +116,18 @@ export function TopPage() {
           🎮暇つぶし
         </button>
         <button
-          onClick={() => window.location.href = 'https://suzuri.jp/7DbpRihzKefprwx'}
-          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-green-500 rounded-lg hover:bg-red-600 transition-colors"
-        >
-          スペシャルショップ
-        </button>
+  onClick={() =>
+    window.open(
+      'https://suzuri.jp/7DbpRihzKefprwx',
+      '_blank',
+      'width=800,height=600,noopener,noreferrer'
+    )
+  }
+  className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-green-500 rounded-lg hover:bg-red-600 transition-colors"
+>
+  スペシャルショップ
+</button>
+
       </div>
 
       {/* 6人の丸いアイコンリンク */}
