@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 
 // ここでは Game02.tsx, Game03.tsx, Game04.tsx に対応するルートパスを設定してる前提
 const miniGames = [
-  { id: 1, title: '脳トレパズル', path: '/Game02' },
-  { id: 2, title: '記憶力ゲーム', path: '/Game03' },
-  { id: 3, title: 'タイピングチャレンジ', path: '/Game04' },
+  { id: 1, title: '麻雀', path: '/Game02' },
+  { id: 2, title: '🍎神経衰弱ゲーム', path: '/Game03' },
+  { id: 3, title: '⌨️ タイピングゲーム', path: '/Game04' },
+  { id: 4, title: '🔢 計算トレーニング', path: '/Game05' },
 ];
 
 const MiniGamesLinks = () => {

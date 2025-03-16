@@ -16,6 +16,7 @@ import  King from './components/King';
 import Game02 from "./components/Game02";
 import Game03 from "./components/Game03";
 import Game04 from "./components/Game04";
+import Game05 from "./components/Game05";
 
 
 
@@ -98,6 +99,7 @@ function App() {
       <Route path="/Game02" element={<Game02 />} />
       <Route path="/Game03" element={<Game03 />} />
       <Route path="/Game04" element={<Game04 />} />
+      <Route path="/Game05" element={<Game05 />} />
 
 
 
