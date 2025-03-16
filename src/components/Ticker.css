@@ -1,29 +1,41 @@
-/* Ticker.css */
-.ticker-text {
+.ticker-container {
+    width: 200px;
+    max-width: 200px;
+    overflow: hidden;
+    background-color: #e5e7eb;
+    padding: 0.5rem 0;
+    margin: 1rem auto;
+    display: block;
+    position: relative;
+  }
+  
+  .ticker-text {
     display: inline-block;
-    white-space: nowrap; /* テキストを1行に保つ */
-    animation: scroll 80s linear infinite; /* スクロールアニメーション */
+    white-space: nowrap;
+    animation: scroll 60s linear infinite; /* アニメーション時間を60秒に */
   }
   
   /* アニメーション定義 */
   @keyframes scroll {
     0% {
-      transform: translateX(100%); /* 右端からスタート */
+      transform: translateX(100%);
+    }
+    90% {
+      transform: translateX(var(--translate-distance, -100%)); /* 90%の時点で末尾が見える */
     }
     100% {
-      transform: translateX(-100%); /* 左端まで移動 */
+      transform: translateX(var(--translate-distance, -100%)); /* 最後の10%は静止 */
     }
   }
   
-  /* スマホ対応: 画面幅に合わせて調整 */
+  /* スマホ対応 */
   @media (max-width: 640px) {
-    .ticker-text {
-      font-size: 0.9rem; /* フォントサイズを小さく */
-      animation: scroll 40s linear infinite; /* スマホでは速度を速く */
+    .ticker-container {
+      width: 180px;
+      margin: 0.5rem auto;
     }
-  }
-  
-  /* はみ出し防止 */
-  .w-full {
-    overflow-x: hidden; /* 横スクロールを隠す */
+    .ticker-text {
+      font-size: 0.8rem;
+      animation: scroll 55s linear infinite; /* スマホでは55秒に */
+    }
   }

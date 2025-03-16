@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react'; // useEffectとuseRefをインポート
 import { useNavigate } from 'react-router-dom';
 import icon001 from '../images/001.jpg';
 import icon002 from '../images/002.jpg';
@@ -8,28 +8,43 @@ import icon005 from '../images/005.jpg';
 import icon006 from '../images/006.jpg';
 import './Ticker.css'; // ティッカー用のCSS
 
-
-
 function Ticker() {
   const messages = [
     "ようこそ！本日の笑いとお得情報をお届けします！",
     "速報：今夜はハンバーグにしませんか？牛豚あいびきミンチセール中",
-    "限定情報：新商品  果汁たっぷりグミ ゴーヤ味！おすすめです！",
-    "ニュース：○○高校甲子園進出決定です！",
+    "限定情報：新商品 果汁たっぷりグミ ゴーヤ味！",
+    "ニュース：○○高校甲子園進出決定！",
     "健康速報：早寝早起き！",
-    "イベント案内：地域のお祭りで試食会開催、シェフいそっちのめちゃウマカレーライス食べに来てね！",
-    "注目：4月のアルミニウム先物市場 予測より８%アップ 米大統領選挙結果受け",
-    "本日の運勢：7月生まれさん靴下は左脚からはいて今日の運勢アップです",
+    "イベント案内：地域のお祭りで試食会開催！",
+    "注目：4月のアルミニウム先物市場 8%アップ！",
+    "本日の運勢：7月生まれさん 運勢アップ！",
     "ニュース：稲多町の山本武三さん フルマラソン2時間切り！",
-    "速報：店の周り雨降っています！！！最後まで読んだ？？暇なん？？"
+    "速報：店の周り雨降っています！",
+    "読んだ？読んでる？暇なの？ねえ、暇なの？？"
   ];
   const text = messages.join(" ★✌★ ");
+  const tickerRef = useRef<HTMLDivElement>(null); // useRefに型を指定
+
+  useEffect(() => {
+    if (tickerRef.current) {
+      const containerWidth = tickerRef.current.parentElement.offsetWidth; // コンテナの幅（200pxまたは180px）
+      const textWidth = tickerRef.current.scrollWidth; // テキストの実際の幅
+      const translateDistance = textWidth + containerWidth; // テキスト全体が隠れるまでの距離
+
+      // 移動距離をCSSカスタムプロパティとして設定
+      tickerRef.current.style.setProperty('--translate-distance', `-${translateDistance}px`);
+      console.log('Container Width:', containerWidth);
+      console.log('Text Width:', textWidth);
+      console.log('Translate Distance:', translateDistance);
+    }
+  }, []);
 
   return (
-    <div className="w-full overflow-hidden bg-gray-100 py-2 my-4">
+    <div className="ticker-container">
       <div
-        className="inline-block whitespace-nowrap ticker-text"
-        style={{ animation: "scroll 80s linear infinite" }}
+        className="ticker-text"
+        ref={tickerRef}
+        style={{ animation: `scroll 60s linear infinite` }} // アニメーション時間を60秒に延長
       >
         {text}
       </div>
@@ -132,3 +147,5 @@ export function TopPage() {
     </div>
   );
 }
+
+export default TopPage;
