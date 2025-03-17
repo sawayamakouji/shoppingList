@@ -42,21 +42,21 @@ const EnhancedMemoryGame = () => {
         return {
           pairs: 4,
           symbols: allSymbols.slice(0, 4),
-          initialPeekTime: 3, // 秒
+          initialPeekTime: 10, // 秒
           hintAllowed: 2
         };
       case 'medium':
         return {
           pairs: 6,
           symbols: allSymbols.slice(0, 6),
-          initialPeekTime: 2,
+          initialPeekTime: 8,
           hintAllowed: 1
         };
       case 'hard':
         return {
           pairs: 8,
           symbols: allSymbols,
-          initialPeekTime: 1,
+          initialPeekTime: 4,
           hintAllowed: 1
         };
       default:
