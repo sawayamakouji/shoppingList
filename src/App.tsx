@@ -18,7 +18,7 @@ import Game03 from "./components/Game03";
 import Game04 from "./components/Game04";
 import Game05 from "./components/Game05";
 import Game01 from "./components/Game01";
-
+import ChatSimulation from './components/ChatSimulation.tsx';
 
 
 function MainTabs() {
@@ -102,8 +102,9 @@ function App() {
       <Route path="/Game04" element={<Game04 />} />
       <Route path="/Game05" element={<Game05 />} />
       <Route path="/Game01" element={<Game01 />} />
-
-
+      <Route path="/chat" element={<ChatSimulation />} />
+      {/* ワイルドカードは最後に置く */}
+      <Route path="*" element={<Navigate to="/" />} />
 
     </Routes>
   );

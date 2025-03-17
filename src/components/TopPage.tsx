@@ -74,13 +74,13 @@ export function TopPage() {
           🧳準備する🎁
         </button>
         <button
-          onClick={() => navigate('/shopping')}
+          onClick={() => navigate('/chat')}
           className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors"
         >
           🎈買物にいく🚲
         </button>
         <button
-          onClick={() => navigate('/Rank')}
+          onClick={() => navigate('/King')}  
           className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors"
         >
           🏆ランキング📝
