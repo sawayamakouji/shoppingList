@@ -79,8 +79,12 @@ export function TopPage() {
         >
           🎈買物にいく🚲
         </button>
+
+{/* 区切り線 */}
+<hr className="my-4 border-t-2 border-gray-300" />
+
         <button
-          onClick={() => navigate('/King')}  
+          onClick={() => navigate('/Rank')}  
           className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors"
         >
           🏆ランキング📝
