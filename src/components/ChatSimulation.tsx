@@ -24,60 +24,21 @@ type ConversationStep =
   | 'checkout'
   | 'done';
 
-// 各メッセージ内のセリフを、一行ずつタイピングアニメーションで表示するコンポーネント
+// 各メッセージをタイピングアニメーションで表示するコンポーネント（1行分）
 const ChatMessage: React.FC<{ message: Message }> = ({ message }) => {
-  // 改行で分割して行ごとにする
-  const lines = message.text.split('\n');
-  const [displayedLines, setDisplayedLines] = useState<string[]>([]);
-  const [currentLine, setCurrentLine] = useState("");
-  const [lineIndex, setLineIndex] = useState(0);
-
+  const [displayedText, setDisplayedText] = useState("");
   useEffect(() => {
-    let charIndex = 0;
-    let interval: ReturnType<typeof setInterval>;
-
-    const typeLine = () => {
-      interval = setInterval(() => {
-        const fullLine = lines[lineIndex];
-        const char = fullLine[charIndex];
-        // charがundefinedの場合は、何も追加せずに終了する
-        if (char === undefined) {
-          clearInterval(interval);
-          setDisplayedLines(prev => [...prev, fullLine]);
-          setCurrentLine("");
-          charIndex = 0;
-          // 次の行があれば少し待ってから開始
-          if (lineIndex < lines.length - 1) {
-            setTimeout(() => {
-              setLineIndex(prev => prev + 1);
-            }, 500);
-          }
-          return;
-        }
-        setCurrentLine(prev => prev + char);
-        charIndex++;
-        if (charIndex === fullLine.length) {
-          clearInterval(interval);
-          setDisplayedLines(prev => [...prev, fullLine]);
-          setCurrentLine("");
-          charIndex = 0;
-          // 次の行があれば少し待ってから開始
-          if (lineIndex < lines.length - 1) {
-            setTimeout(() => {
-              setLineIndex(prev => prev + 1);
-            }, 500);
-          }
-        }
-      }, 50);
-    };
-
-    if (lineIndex < lines.length) {
-      typeLine();
-    }
-
+    let index = 0;
+    const interval = setInterval(() => {
+      setDisplayedText((prev) => prev + message.text[index]);
+      index++;
+      if (index >= message.text.length) {
+        clearInterval(interval);
+      }
+    }, 50); // 1文字50ms
     return () => clearInterval(interval);
-  }, [lineIndex, message.text, lines]);
-
+  }, [message.text]);
+  
   return (
     <div 
       style={{ 
@@ -88,18 +49,13 @@ const ChatMessage: React.FC<{ message: Message }> = ({ message }) => {
         fontSize: '22px'
       }}
     >
-      <strong>{message.speaker}:</strong>
-      <div>
-        {displayedLines.map((line, idx) => (
-          <div key={idx}>{line}</div>
-        ))}
-        {currentLine && <div>{currentLine}</div>}
-      </div>
+      <strong>{message.speaker}:</strong> {displayedText}
     </div>
   );
 };
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+// 見た目のタイピング時間は文字数×50ms＋余裕の時間（ここでは500ms）とする
 const computeDelay = (msg: Message) => msg.text.length * 50 + 500;
 
 const ChatSimulation: React.FC = () => {
@@ -118,7 +74,7 @@ const ChatSimulation: React.FC = () => {
     }
   }, [messages]);
 
-  // 複数のメッセージを順番に追加する関数
+  // メッセージを配列で順番に追加する関数
   const addSequentialMessages = async (msgs: Message[]) => {
     for (const msg of msgs) {
       setMessages(prev => [...prev, msg]);
@@ -126,10 +82,12 @@ const ChatSimulation: React.FC = () => {
     }
   };
 
-  // 「着いたよ」ボタンの処理
+  // 「着いたよ」ボタンの処理（シーケンシャルに複数のセリフを追加）
   const handleArrival = async () => {
+    // まずおじいちゃんの返事
     setMessages(prev => [...prev, { speaker: 'おじいちゃん', text: '着いたよ' }]);
     await delay(1000);
+    // 孫のセリフを1行ずつ追加
     const msgs: Message[] = [
       { speaker: '孫', text: 'ほな、買物リストを表示するわ！' },
       { speaker: '孫', text: '【買物リスト】' },
@@ -194,7 +152,7 @@ const ChatSimulation: React.FC = () => {
   const handleCheckout = async () => {
     await addSequentialMessages([
       { speaker: '孫', text: 'かいけい終了！リワードとポイントもゲットやで！' },
-      { speaker: '孫', text: '無事におうちに帰るまでがクエストや。\n気ぃつけて帰ってな、じいちゃん！' }
+      { speaker: '孫', text: '無事におうちに帰るまでがクエストや。気ぃつけて帰ってな、じいちゃん！' }
     ]);
     setStep('done');
   };
