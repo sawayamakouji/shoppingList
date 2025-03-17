@@ -1,6 +1,6 @@
 import React from 'react';
 import './MapDisplay.css';
-import storeMap from '../images/store-map.jpg';
+import storeMap from '../images/store-map.png';
 import { Item } from './ChatSimulation';
 
 interface MapDisplayProps {
