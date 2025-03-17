@@ -24,21 +24,33 @@ type ConversationStep =
   | 'checkout'
   | 'done';
 
-// 各メッセージをタイピングアニメーションで表示するコンポーネント（1行分）
 const ChatMessage: React.FC<{ message: Message }> = ({ message }) => {
   const [displayedText, setDisplayedText] = useState("");
+  const timerRef = useRef<number>();
+
   useEffect(() => {
+    // 毎回リセット
+    setDisplayedText("");
     let index = 0;
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + message.text[index]);
-      index++;
-      if (index >= message.text.length) {
-        clearInterval(interval);
+
+    const typeChar = () => {
+      // ※sliceを使って、message.text の先頭から index+1 文字を表示する
+      if (index < message.text.length) {
+        setDisplayedText(message.text.slice(0, index + 1));
+        index++;
+        timerRef.current = window.setTimeout(typeChar, 50);
       }
-    }, 50); // 1文字50ms
-    return () => clearInterval(interval);
+    };
+
+    typeChar();
+
+    return () => {
+      if (timerRef.current) {
+        window.clearTimeout(timerRef.current);
+      }
+    };
   }, [message.text]);
-  
+
   return (
     <div 
       style={{ 
@@ -55,7 +67,7 @@ const ChatMessage: React.FC<{ message: Message }> = ({ message }) => {
 };
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-// 見た目のタイピング時間は文字数×50ms＋余裕の時間（ここでは500ms）とする
+// 各メッセージのタイピング完了までの待機時間は、文字数×50ms＋余裕500ms
 const computeDelay = (msg: Message) => msg.text.length * 50 + 500;
 
 const ChatSimulation: React.FC = () => {
@@ -64,17 +76,17 @@ const ChatSimulation: React.FC = () => {
   ]);
   const [step, setStep] = useState<ConversationStep>('arrival');
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [items, setItems] = useState<Item[]>(initialItems);
+  const [items] = useState<Item[]>(initialItems);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // 新しいメッセージが追加されるたびに自動スクロール
+  // メッセージが追加されるたび自動スクロール
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // メッセージを配列で順番に追加する関数
+  // 複数のメッセージを順番に追加する関数
   const addSequentialMessages = async (msgs: Message[]) => {
     for (const msg of msgs) {
       setMessages(prev => [...prev, msg]);
@@ -82,12 +94,10 @@ const ChatSimulation: React.FC = () => {
     }
   };
 
-  // 「着いたよ」ボタンの処理（シーケンシャルに複数のセリフを追加）
+  // 「着いたよ」ボタン押下時の処理
   const handleArrival = async () => {
-    // まずおじいちゃんの返事
     setMessages(prev => [...prev, { speaker: 'おじいちゃん', text: '着いたよ' }]);
     await delay(1000);
-    // 孫のセリフを1行ずつ追加
     const msgs: Message[] = [
       { speaker: '孫', text: 'ほな、買物リストを表示するわ！' },
       { speaker: '孫', text: '【買物リスト】' },
@@ -105,7 +115,7 @@ const ChatSimulation: React.FC = () => {
     setStep('inquiry');
   };
 
-  // 問い合わせ回答用ボタンの処理
+  // 問い合わせ回答ボタンの処理
   const handleInquiryAnswer = async (answer: boolean) => {
     const msg1 = { speaker: 'おじいちゃん', text: answer ? '問い合わせするで' : '問い合わせせんわ' };
     setMessages(prev => [...prev, msg1]);
@@ -122,7 +132,7 @@ const ChatSimulation: React.FC = () => {
     setMessages(prev => [...prev, { speaker: '孫', text: `「${items[currentItemIndex].name}」見つけた？` }]);
   };
 
-  // 商品ピックアップ回答用ボタンの処理
+  // 商品ピックアップ回答ボタンの処理
   const handleFindItemAnswer = async (answer: boolean) => {
     if (answer) {
       const msg = { speaker: '孫', text: `グッジョブ！「${items[currentItemIndex].name}」をピックアップしたで！` };
@@ -136,7 +146,7 @@ const ChatSimulation: React.FC = () => {
         setStep('checkout');
         await addSequentialMessages([
           { speaker: '孫', text: '全部の商品ピックアップできたな！ほな、レジ行こか～' },
-          { speaker: '孫', text: 'レジでボンタンとQRコードが表示されるから、スキャンしてもらってな！' },
+          { speaker: '孫', text: 'レジでボタンとQRコードが表示されるから、スキャンしてもらってな！' },
           { speaker: '孫', text: 'おじいちゃん、レジでスキャンしたら「スキャン完了」ボタン押してな！' }
         ]);
       }
