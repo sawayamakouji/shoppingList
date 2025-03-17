@@ -1,0 +1,21 @@
+.map-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .map-image {
+    width: 100%;
+    display: block;
+  }
+  
+  .map-marker {
+    position: absolute;
+    padding: 5px 8px;
+    border-radius: 4px;
+    color: #fff;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+  }
+  
