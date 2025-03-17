@@ -1,6 +1,6 @@
 import React from 'react';
 import './MapDisplay.css';
-import storeMap from '../images/store-map.png';
+import storeMap from '../images/store-map.jpg';
 import { Item } from './ChatSimulation';
 
 interface MapDisplayProps {
@@ -8,6 +8,7 @@ interface MapDisplayProps {
 }
 
 const MapDisplay: React.FC<MapDisplayProps> = ({ items }) => {
+
   // 各商品の元画像での座標（例：元画像の幅800px, 高さ600pxの場合）
   // これらの値をパーセンテージに変換する（x％, y％）
   const markers = items.map(item => {
@@ -34,7 +35,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({ items }) => {
           key={marker.id}
           className="map-marker"
           style={{
-            left: marker.left,  // パーセンテージ指定
+            left: marker.left,
             top: marker.top,
             backgroundColor: marker.scanned ? 'green' : 'red'
           }}
