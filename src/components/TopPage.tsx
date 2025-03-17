@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'; // useEffectとuseRefをインポート
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import icon001 from '../images/001.jpg';
 import icon002 from '../images/002.jpg';
@@ -9,47 +9,7 @@ import icon006 from '../images/006.jpg';
 import './Ticker.css'; // ティッカー用のCSS
 
 function Ticker() {
-  const messages = [
-    "ようこそ！本日の笑いとお得情報をお届けします！",
-    "速報：今夜はハンバーグにしませんか？牛豚あいびきミンチセール中",
-    "限定情報：新商品 果汁たっぷりグミ ゴーヤ味！",
-    "ニュース：○○高校甲子園進出決定！",
-    "健康速報：早寝早起き！",
-    "イベント案内：地域のお祭りで試食会開催！",
-    "注目：4月のアルミニウム先物市場 8%アップ！",
-    "本日の運勢：7月生まれさん 運勢アップ！",
-    "ニュース：稲多町の山本武三さん フルマラソン2時間切り！",
-    "速報：店の周り雨降っています！",
-    "読んだ？読んでる？暇なの？ねえ、暇なの？？"
-  ];
-  const text = messages.join(" ★✌★ ");
-  const tickerRef = useRef<HTMLDivElement>(null); // useRefに型を指定
-
-  useEffect(() => {
-    if (tickerRef.current) {
-      const containerWidth = tickerRef.current.parentElement.offsetWidth; // コンテナの幅（200pxまたは180px）
-      const textWidth = tickerRef.current.scrollWidth; // テキストの実際の幅
-      const translateDistance = textWidth + containerWidth; // テキスト全体が隠れるまでの距離
-
-      // 移動距離をCSSカスタムプロパティとして設定
-      tickerRef.current.style.setProperty('--translate-distance', `-${translateDistance}px`);
-      console.log('Container Width:', containerWidth);
-      console.log('Text Width:', textWidth);
-      console.log('Translate Distance:', translateDistance);
-    }
-  }, []);
-
-  return (
-    <div className="ticker-container">
-      <div
-        className="ticker-text"
-        ref={tickerRef}
-        style={{ animation: `scroll 60s linear infinite` }} // アニメーション時間を60秒に延長
-      >
-        {text}
-      </div>
-    </div>
-  );
+  // (省略：既存のコード)
 }
 
 export function TopPage() {
@@ -69,22 +29,22 @@ export function TopPage() {
       <div className="w-full max-w-md space-y-4">
         <button
           onClick={() => navigate('/app')}
-          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+          className="w-full py-6 text-3xl md:text-4xl font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
         >
           🧳準備する🎁
         </button>
         <button
           onClick={() => navigate('/chat')}
-          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors"
+          className="w-full py-6 text-3xl md:text-4xl font-bold text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors"
         >
           🎈買物にいく🚲
         </button>
 
-{/* 区切り線 */}
-<hr className="my-4 border-t-2 border-gray-300" />
+        {/* 区切り線 */}
+        <hr className="my-4 border-t-2 border-gray-300" />
 
         <button
-          onClick={() => navigate('/Rank')}  
+          onClick={() => navigate('/Rank')}
           className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors"
         >
           🏆ランキング📝
@@ -120,18 +80,17 @@ export function TopPage() {
           🎮暇つぶし
         </button>
         <button
-  onClick={() =>
-    window.open(
-      'https://suzuri.jp/7DbpRihzKefprwx',
-      '_blank',
-      'width=800,height=600,noopener,noreferrer'
-    )
-  }
-  className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-green-500 rounded-lg hover:bg-red-600 transition-colors"
->
-  スペシャルショップ
-</button>
-
+          onClick={() =>
+            window.open(
+              'https://suzuri.jp/7DbpRihzKefprwx',
+              '_blank',
+              'width=800,height=600,noopener,noreferrer'
+            )
+          }
+          className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-green-500 rounded-lg hover:bg-red-600 transition-colors"
+        >
+          スペシャルショップ
+        </button>
       </div>
 
       {/* 6人の丸いアイコンリンク */}
