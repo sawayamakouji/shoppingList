@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
-import { Camera, Upload, Trash2, Mic, Plus, Tag, Star } from 'lucide-react';
+import { Camera, Upload, Trash2, Mic, Plus, Tag, Star, Box } from 'lucide-react';
 import { supabase, type ShoppingItem } from '../lib/supabase'; // Supabase 初期化モジュール
 
 type Priority = 'must' | 'preferred' | 'optional';
@@ -446,16 +446,17 @@ export function OCRCapture() {
   return (
     <div className="space-y-6">
       {/* タブ切り替え UI */}
-      <div className="flex space-x-4 mb-4">
+      
+      <div className=" flex space-x-4 mb-4 justify-center">
         <button
           onClick={() => setActiveTab("ocr")}
-          className={`px-4 py-2 border rounded ${activeTab === "ocr" ? "bg-blue-600 text-white" : "bg-white text-gray-800"}`}
+          className={`px-4 py-2 border rounded ${activeTab === "ocr" ? "bg-green-600 text-white" : "bg-white text-gray-800"}`}
         >
           OCR読み取り
         </button>
         <button
           onClick={() => setActiveTab("direct")}
-          className={`px-4 py-2 border rounded ${activeTab === "direct" ? "bg-blue-600 text-white" : "bg-white text-gray-800"}`}
+          className={`px-4 py-2 border rounded ${activeTab === "direct" ? "bg-green-600 text-white" : "bg-white text-gray-800"}`}
         >
           直接Gemini入力
         </button>
@@ -473,9 +474,10 @@ export function OCRCapture() {
               : "画像から品物っぽいモノを読み取って、買い物リストとして整形します。"}
           </p>
           <div className="mt-6">
+            
             <button
               onClick={() => setShowCamera(true)}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
             >
               <Camera className="h-6 w-6 mr-2" />
               カメラで撮影
