@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom"; // 追加
+
 
 const EnhancedMemoryGame = () => {
+  const navigate = useNavigate(); // 追加
   const [gameState, setGameState] = useState('menu'); // menu, matching, success
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);
@@ -253,9 +256,9 @@ const EnhancedMemoryGame = () => {
         </h1>
         <button
           className="px-4 py-2 bg-gray-700 text-white text-xl rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-md"
-          onClick={() => window.location.href = '/'}
+          onClick={() => navigate("/game")} 
         >
-          🏠 ホーム
+          🏠 戻る
         </button>
       </div>
       

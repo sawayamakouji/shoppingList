@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom"; // 追加
+
 
 const Game02 = () => {
+  const navigate = useNavigate(); // 追加
   // ゲームの状態
   const [deck, setDeck] = useState([]);
   const [playerHand, setPlayerHand] = useState([]);
@@ -471,7 +474,21 @@ const Game02 = () => {
   };
 
   return (
+
+
+
+    
     <div className="w-full max-w-4xl mx-auto p-4 bg-green-50 rounded-lg shadow-lg">
+
+<div className="flex justify-end">
+<button
+          className="px-3 py-2 bg-gray-700 text-white text-lg rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-md"
+          onClick={() => navigate("/game")} // ← Game.tsx に遷移
+        >
+          🎮 戻る
+        </button>
+</div>
+
       <h1 className="text-2xl font-bold text-center mb-4">花札 こいこい</h1>
       
       {/* メッセージ表示 */}

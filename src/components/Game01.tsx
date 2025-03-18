@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-
+import { useNavigate } from "react-router-dom"; // 追加
 const Game01 = () => {
+
+  const navigate = useNavigate(); // 追加
   // 麻雀牌の定義
   const suits = {
     m: '萬子',
@@ -231,6 +233,16 @@ const Game01 = () => {
 
   return (
     <div className="p-4">
+
+      <div className="flex justify-end">
+      <button
+          className="px-3 py-2 bg-gray-700 text-white text-lg rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-md"
+          onClick={() => navigate("/game")} // ← Game.tsx に遷移
+        >
+          🎮 戻る
+        </button>
+      </div>
+
       <h1 className="text-2xl font-bold mb-4">麻雀の捨て牌クイズ</h1>
 
       {showResults ? (

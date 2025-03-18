@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom"; // 追加
 
 const Game05 = () => {
+  const navigate = useNavigate(); // 追加
   const [gameState, setGameState] = useState('menu'); // menu, game, result
   const [difficulty, setDifficulty] = useState('easy');
   const [operationType, setOperationType] = useState('addition');
@@ -360,14 +362,9 @@ const Game05 = () => {
                 }
               }}
             >
-              ← 戻る
+               戻る
             </button>
-            <button
-              className="px-3 py-2 bg-gray-700 text-white text-lg rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-md"
-              onClick={() => window.location.href = '/'}
-            >
-              🏠 ホーム
-            </button>
+
           </div>
         </div>
       </div>

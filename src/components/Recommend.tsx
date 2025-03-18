@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, ShoppingBag, Check, Plus, Volume2, Calendar, TrendingUp } from 'lucide-react';
+import { useNavigate } from "react-router-dom"; // ← 追加
+
 
 const Recommend = () => {
   // 購入履歴データ（実際のアプリではデータベースから取得）
+  const navigate = useNavigate(); // ← 追加
   const [purchaseHistory, setPurchaseHistory] = useState([
     { 
       id: 1, 
       name: '洗剤', 
       lastPurchased: '2025-03-01', 
       frequency: 14, // 平均購入間隔（日）
-      image: '/api/placeholder/80/80',
+      image: "/images/洗剤.png",
       category: '日用品',
       urgency: 'high' // high, medium, low
     },
@@ -18,7 +21,7 @@ const Recommend = () => {
       name: 'トイレットペーパー', 
       lastPurchased: '2025-03-05', 
       frequency: 21,
-      image: '/api/placeholder/80/80',
+      image: "/images/トイレットペーパー.png",
       category: '日用品',
       urgency: 'medium'
     },
@@ -27,7 +30,7 @@ const Recommend = () => {
       name: '牛乳', 
       lastPurchased: '2025-03-10', 
       frequency: 5,
-      image: '/api/placeholder/80/80',
+      image: "/images/牛乳.png",
       category: '食品',
       urgency: 'high'
     },
@@ -36,7 +39,7 @@ const Recommend = () => {
       name: 'シャンプー', 
       lastPurchased: '2025-02-20', 
       frequency: 30,
-      image: '/api/placeholder/80/80',
+      image: "/images/シャンプー.png",
       category: '日用品',
       urgency: 'high'
     },
@@ -45,7 +48,7 @@ const Recommend = () => {
       name: 'お米', 
       lastPurchased: '2025-03-01', 
       frequency: 30,
-      image: '/api/placeholder/80/80',
+      image: "/images/おこめ.png",
       category: '食品',
       urgency: 'medium'
     }
@@ -387,7 +390,24 @@ const Recommend = () => {
       </div>
       
       <div className="h-24"></div> {/* 下部ナビゲーション用の余白 */}
+
+      {/* 戻るボタン（画面下部に固定） */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-md px-6">
+        <button 
+          className="bg-gray-600 text-white text-2xl p-5 rounded-full w-full shadow-lg border-2 border-gray-700"
+          onClick={() => navigate("/")} // ← `TopPage.tsx` のルートパスに戻る
+        >
+          戻る
+        </button>
+      </div>
+
+
+
     </div>
+
+
+
+
   );
 };
 
