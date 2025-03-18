@@ -171,3 +171,4 @@ export function AlbumPage() {  // ✅ ここを AlbumPage に変更
     </div>
   );
 }
+export default AlbumPage;

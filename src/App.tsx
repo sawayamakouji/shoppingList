@@ -37,7 +37,7 @@ function MainTabs() {
         <div className="flex space-x-6">
           <button
             onClick={() => handleTabClick('shoppinglist', '買い物リスト')}
-            className={`px-4 py-2 text-2xl font-bold ${activeTab === 'shoppinglist' ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+            className={`px-4 py-2 text-2xl font-bold ${activeTab === 'shoppinglist' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
           >
             買い物リスト
           </button>
@@ -63,8 +63,7 @@ function MainTabs() {
         </button>
       </div>
 
-      {/* ページタイトル */}
-      <div className="text-center py-4 text-3xl font-bold">{pageTitle}</div>
+    
 
       {/* タブごとの内容 */}
       <div className="p-4">

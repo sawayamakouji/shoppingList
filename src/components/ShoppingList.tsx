@@ -161,7 +161,7 @@ export function ShoppingList() {
       {/* Shopping List */}
       <div className="bg-white shadow-lg rounded-lg divide-y divide-gray-300">
         <div className="p-8">
-          <h3 className="text-3xl font-bold text-gray-900 mb-6">買い物リスト</h3>
+        
           <ul className="space-y-4">
             {items.map((item) => (
               <li key={item.id} className="p-4 bg-gray-50 rounded-lg">

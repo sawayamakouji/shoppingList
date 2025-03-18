@@ -83,6 +83,12 @@ const TopPage = () => {
           🎮暇つぶし
         </button>
         <button
+          onClick={() => navigate('/album')}
+          className="py-4 text-2xl md:text-3xl font-bold text-white bg-gray-400 rounded-lg hover:bg-gray-500 transition-colors"
+        >
+          🎮写真
+        </button>
+        <button
           onClick={() =>
             window.open(
               'https://suzuri.jp/7DbpRihzKefprwx',
@@ -94,13 +100,6 @@ const TopPage = () => {
         >
           スペシャルショップ
         </button>
-
-
-
-
-
-
-
 
 
 
