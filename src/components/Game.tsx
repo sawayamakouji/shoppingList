@@ -15,7 +15,9 @@ const MiniGamesLinks = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
       {/* タイトルに animate-pulse を追加して、ゆっくり光る動きを出す */}
+      五感を研ぎ澄ましましょう！！
       <h2 className="text-4xl font-bold text-gray-800 mb-8 animate-pulse">
+        
         ミニゲームリンク集
       </h2>
 
