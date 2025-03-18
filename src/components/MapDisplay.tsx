@@ -43,7 +43,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({ items, positions, currentItemId
         return (
           <div
             key={item.id}
-            className="map-marker"
+            className="map-marker text-sm md:text-base"  // ここでレスポンシブなフォントサイズを設定
             style={{
               position: 'absolute',
               left: `${itemPositions[item.id].left}%`,

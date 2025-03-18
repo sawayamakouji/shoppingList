@@ -217,20 +217,22 @@ const ChatSimulation: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '10px' }}>
       {/* チャット画面 */}
       <div 
-        ref={chatContainerRef}
-        style={{ 
-          height: '200px',
-          overflowY: 'auto', 
-          border: '2px solid #ccc', 
-          padding: '20px', 
-          backgroundColor: '#FFFDE7', 
-          borderRadius: '10px' 
-        }}
-      >
-        {messages.map((msg, index) => (
-          <ChatMessage key={index} message={msg} />
-        ))}
-      </div>
+  ref={chatContainerRef}
+  style={{ 
+    height: '40vh',          // 画面高さの40%程度にする（スマホでは十分な高さになることが多い）
+    minHeight: '200px',       // 最低でも200pxは確保
+    overflowY: 'auto', 
+    border: '2px solid #ccc', 
+    padding: '20px', 
+    paddingBottom: '80px',    // 下部に余白を追加（ボタンエリアなどとの重なりを防ぐ）
+    backgroundColor: '#FFFDE7', 
+    borderRadius: '10px' 
+  }}
+>
+  {messages.map((msg, index) => (
+    <ChatMessage key={index} message={msg} />
+  ))}
+</div>
       {/* ボタンエリア */}
       <div style={{ minHeight: '80px', marginTop: '10px', textAlign: 'center' }}>
         {step === 'arrival' && responseVisible && (
