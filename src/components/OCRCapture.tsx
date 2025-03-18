@@ -94,13 +94,13 @@ export function ShoppingList() {
   }
 
   if (loading) {
-    return <div className="text-center py-8 text-2xl">読み込み中...</div>;
+    return <div className="text-center py-8">読み込み中...</div>;
   }
 
   return (
-    <div className="space-y-6 p-6"> {/* 全体の余白も拡大 */}
+    <div className="space-y-6">
       {/* 手動追加フォーム */}
-      <div className="bg-white shadow rounded-lg p-8">
+      <div className="bg-white shadow rounded-lg p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
           <div className="flex-1">
             <input
@@ -108,19 +108,19 @@ export function ShoppingList() {
               value={newItemName}
               onChange={(e) => setNewItemName(e.target.value)}
               placeholder="商品名を入力"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" // text-base -> text-lg
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
             onClick={() => {}}
             className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
           >
-            <Mic className="h-6 w-6" /> {/* アイコンサイズも若干アップ */}
+            <Mic className="h-6 w-6" />
           </button>
           <select
             value={selectedPriority}
             onChange={(e) => setSelectedPriority(e.target.value as Priority)}
-            className="px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg" // text-base -> text-lg
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="must">絶対買う</option>
             <option value="preferred">あったらでいい</option>
@@ -128,9 +128,9 @@ export function ShoppingList() {
           </select>
           <button
             onClick={async () => await addItem()}
-            className="inline-flex items-center px-4 py-3 border border-transparent text-lg font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" // text-sm -> text-lg, pyも少し大きめ
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
           >
-            <Plus className="h-6 w-6 mr-2" />
+            <Plus className="h-5 w-5 mr-2" />
             追加
           </button>
         </div>
@@ -143,7 +143,7 @@ export function ShoppingList() {
           if (categoryItems.length === 0) return null;
           return (
             <div key={category} className="p-6">
-              <h3 className="text-2xl font-medium text-gray-900 mb-4">{category}</h3> {/* text-xl -> text-2xl */}
+              <h3 className="text-xl font-medium text-gray-900 mb-4">{category}</h3>
               <ul className="space-y-3">
                 {categoryItems.map(item => (
                   <li key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -151,18 +151,16 @@ export function ShoppingList() {
                       onClick={() => toggleItemComplete(item)}
                       className="flex items-center flex-1"
                     >
-                      <span className={`flex items-center ${item.completed ? 'line-through text-gray-400' : 'text-xl'}`}>
-                        {item.priority === 'must' && <Star className="h-6 w-6 text-yellow-500 mr-2" />} {/* h-5 -> h-6 */}
-                        <span className="text-3xl font-bold">{item.name}</span> {/* 商品名をさらに大きく */}
+                      <span className={`flex items-center ${item.completed ? 'line-through text-gray-400' : ''}`}>
+                        {item.priority === 'must' && <Star className="h-5 w-5 text-yellow-500 mr-2" />}
+                        {item.name}
                       </span>
                     </button>
                     <div className="flex items-center space-x-2">
-                      <Tag className="h-6 w-6 text-gray-400" /> {/* アイコンサイズアップ */}
-                      <span className="text-lg text-gray-500">
-                        {item.priority === 'must'
-                          ? '絶対買う'
-                          : item.priority === 'preferred'
-                          ? 'あったらでいい'
+                      <Tag className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm text-gray-500">
+                        {item.priority === 'must' ? '絶対買う'
+                          : item.priority === 'preferred' ? 'あったらでいい'
                           : '気が向いたら'}
                       </span>
                       {confirmDeleteItem && confirmDeleteItem.id === item.id ? (
@@ -172,13 +170,13 @@ export function ShoppingList() {
                               deleteItem(item);
                               setConfirmDeleteItem(null);
                             }}
-                            className="px-2 py-1 bg-red-600 text-white rounded text-lg" // text-base -> text-lg
+                            className="px-2 py-1 bg-red-600 text-white rounded"
                           >
                             削除する
                           </button>
                           <button
                             onClick={() => setConfirmDeleteItem(null)}
-                            className="px-2 py-1 bg-yellow-300 text-gray-800 rounded text-lg"
+                            className="px-2 py-1 bg-yellow-300 text-gray-800 rounded"
                           >
                             削除しない
                           </button>
@@ -191,7 +189,7 @@ export function ShoppingList() {
                           }}
                           className="p-1 text-red-600 hover:text-red-800"
                         >
-                          <Trash2 className="h-6 w-6" />
+                          <Trash2 className="h-5 w-5" />
                         </button>
                       )}
                     </div>
@@ -446,18 +444,18 @@ export function OCRCapture() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* タブ切り替え UI */}
-      <div className="flex justify-center space-x-4 mb-4">
+      <div className="flex space-x-4 mb-4">
         <button
           onClick={() => setActiveTab("ocr")}
-          className={`px-4 py-2 border rounded ${activeTab === "ocr" ? "bg-green-600 text-white" : "bg-white text-gray-800"} text-xl`}
+          className={`px-4 py-2 border rounded ${activeTab === "ocr" ? "bg-blue-600 text-white" : "bg-white text-gray-800"}`}
         >
           OCR読み取り
         </button>
         <button
           onClick={() => setActiveTab("direct")}
-          className={`px-4 py-2 border rounded ${activeTab === "direct" ? "bg-green-600 text-white" : "bg-white text-gray-800"} text-xl`}
+          className={`px-4 py-2 border rounded ${activeTab === "direct" ? "bg-blue-600 text-white" : "bg-white text-gray-800"}`}
         >
           直接Gemini入力
         </button>
@@ -466,10 +464,10 @@ export function OCRCapture() {
       {/* 画像取得＆処理用 UI */}
       <div className="bg-white shadow rounded-lg p-6">
         <div className="text-center">
-          <h2 className="text-2xl font-medium text-gray-900">
+          <h2 className="text-lg font-medium text-gray-900">
             {activeTab === "ocr" ? "OCR読み取り & 買い物リスト変換" : "画像から買い物リスト変換"}
           </h2>
-          <p className="mt-1 text-xl text-gray-500">
+          <p className="mt-1 text-sm text-gray-500">
             {activeTab === "ocr"
               ? "画像からテキストを抽出し、買い物リストとして整形します。"
               : "画像から品物っぽいモノを読み取って、買い物リストとして整形します。"}
@@ -477,25 +475,46 @@ export function OCRCapture() {
           <div className="mt-6">
             <button
               onClick={() => setShowCamera(true)}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-xl font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
             >
               <Camera className="h-6 w-6 mr-2" />
               カメラで撮影
             </button>
-            <p className="mt-2 text-xl text-gray-500">または</p>
-            <label className="mt-2 inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-xl font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
+            <p className="mt-2 text-sm text-gray-500">または</p>
+            <label className="mt-2 inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
               <Upload className="h-6 w-6 mr-2" />
               画像をアップロード
-              <input type="file" accept="image/*" className="hidden" /* onChange={handleUpload} */ />
+              <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
             </label>
           </div>
         </div>
       </div>
 
-      {loading && <p className="text-center text-gray-500 text-xl">処理中...</p>}
+      {/* Webカメラ UI */}
+      {showCamera && (
+        <div className="bg-white shadow rounded-lg p-6 text-center">
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            videoConstraints={videoConstraints}
+            className="mx-auto"
+          />
+          <div className="mt-4 space-x-2">
+            <button onClick={captureImage} className="px-4 py-2 bg-blue-600 text-white rounded-md">
+              撮影
+            </button>
+            <button onClick={() => setShowCamera(false)} className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md">
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
+
+      {loading && <p className="text-center text-gray-500">処理中...</p>}
 
       {errorMessage && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-xl" role="alert">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">エラー:</strong>
           <span className="block sm:inline">{errorMessage}</span>
         </div>
@@ -503,11 +522,11 @@ export function OCRCapture() {
 
       {geminiResult && (
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-xl font-medium text-gray-900 mb-4">買い物リスト候補</h3>
-          <pre className="whitespace-pre-wrap text-gray-800 text-xl">{geminiResult}</pre>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">買い物リスト候補</h3>
+          <pre className="whitespace-pre-wrap text-gray-800">{geminiResult}</pre>
           <button
-            onClick={() => {}}
-            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-xl font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+            onClick={handleAddToShoppingList}
+            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
           >
             この内容で追加する
           </button>
