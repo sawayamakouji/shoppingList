@@ -56,7 +56,7 @@ export function ShoppingList() {
         {
           name: newItemName.trim(),
           priority: selectedPriority,
-          category: 'その他', // 固定値でも問題なければそのままでOK
+          category: 'その他',
           user_id: user.id,
         },
       ]);
@@ -164,33 +164,31 @@ export function ShoppingList() {
           <h3 className="text-3xl font-bold text-gray-900 mb-6">買い物リスト</h3>
           <ul className="space-y-4">
             {items.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-              >
+              <li key={item.id} className="p-4 bg-gray-50 rounded-lg">
+                {/* 商品名表示（タップで完了切替） */}
                 <button
                   onClick={() => toggleItemComplete(item)}
-                  className="flex items-center flex-1"
+                  className="w-full text-left"
                 >
                   <span
-                    className={`flex items-center text-2xl ${
+                    className={`text-3xl font-bold ${
                       item.completed ? 'line-through text-gray-400' : ''
                     }`}
                   >
                     {item.priority === 'must' && (
-                      <Star className="h-8 w-8 text-yellow-500 mr-3" />
+                      <Star className="h-8 w-8 text-yellow-500 inline-block mr-3" />
                     )}
                     {item.name}
                   </span>
                 </button>
-                <div className="flex items-center space-x-4">
-                  <Tag className="h-8 w-8 text-gray-400" />
+
+                {/* タグ表示 */}
+                <div className="mt-2">
+                  <Tag className="h-8 w-8 text-gray-400 inline-block mr-2" />
                   {editingItemId === item.id ? (
                     <select
                       value={editingPriority}
-                      onChange={(e) =>
-                        setEditingPriority(e.target.value as Priority)
-                      }
+                      onChange={(e) => setEditingPriority(e.target.value as Priority)}
                       className="px-3 py-2 border border-gray-300 rounded-lg text-2xl"
                     >
                       <option value="must">絶対買う</option>
@@ -206,11 +204,13 @@ export function ShoppingList() {
                         : '気が向いたら'}
                     </span>
                   )}
+                </div>
+
+                {/* 編集ボタンと削除ボタン（横並び：編集が左、削除が右） */}
+                <div className="mt-2 flex flex-row space-x-3 items-center">
                   {editingItemId === item.id ? (
                     <button
-                      onClick={() =>
-                        updateItemPriority(item.id, editingPriority)
-                      }
+                      onClick={() => updateItemPriority(item.id, editingPriority)}
                       className="px-3 py-2 bg-green-600 text-white rounded-lg text-2xl"
                     >
                       更新
@@ -227,7 +227,8 @@ export function ShoppingList() {
                     </button>
                   )}
                   {confirmDeleteItem && confirmDeleteItem.id === item.id ? (
-                    <div className="flex space-x-3">
+                    // 確認用のボタン群はここでは横並びのまま
+                    <div className="flex flex-col space-y-2">
                       <button
                         onClick={() => {
                           deleteItem(item);
