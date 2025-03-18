@@ -1,48 +1,66 @@
-import React from 'react';
-import './MapDisplay.css';
+import React, { useMemo } from 'react';
 import storeMap from '../images/store-map.png';
 import { Item } from './ChatSimulation';
 
 interface MapDisplayProps {
   items: Item[];
+  positions?: Record<number, { left: number; top: number }>;
+  currentItemId?: number;
 }
 
-const MapDisplay: React.FC<MapDisplayProps> = ({ items }) => {
-
-  // 各商品の元画像での座標（例：元画像の幅800px, 高さ600pxの場合）
-  // これらの値をパーセンテージに変換する（x％, y％）
-  const markers = items.map(item => {
-    let posPercent = { left: '0%', top: '0%' };
-    // 例：各商品の元画像上のピクセル座標
-    if (item.id === 1) {
-      // 例えば、元画像幅800px, x=150px → (150/800*100) = 18.75%
-      posPercent = { left: '88.75%', top: '33.33%' }; // 仮の値
-    } else if (item.id === 2) {
-      posPercent = { left: '47.5%', top: '75.33%' }; // 仮の値
-    } else if (item.id === 3) {
-      posPercent = { left: '89.25%', top: '65.67%' }; // 仮の値
-    } else if (item.id === 4) {
-      posPercent = { left: '65%', top: '56.67%' }; // 仮の値
-    }
-    return { ...item, ...posPercent };
-  });
+const MapDisplay: React.FC<MapDisplayProps> = ({ items, positions, currentItemId }) => {
+  const itemPositions = useMemo(() => {
+    if (positions) return positions;
+    const pos: Record<number, { left: number; top: number }> = {};
+    items.forEach(item => {
+      pos[item.id] = {
+        left: Math.random() * 80 + 10,
+        top: Math.random() * 80 + 10,
+      };
+    });
+    return pos;
+  }, [positions, items]);
 
   return (
-    <div className="map-container">
-      <img src={storeMap} alt="店内マップ" className="map-image" />
-      {markers.map(marker => (
-        <div
-          key={marker.id}
-          className="map-marker"
-          style={{
-            left: marker.left,
-            top: marker.top,
-            backgroundColor: marker.scanned ? 'green' : 'red'
-          }}
-        >
-          {marker.name}
-        </div>
-      ))}
+    <div className="map-container" style={{ position: 'relative' }}>
+      <style>
+        {`
+          @keyframes glow {
+            0% { box-shadow: 0 0 5px yellow; }
+            50% { box-shadow: 0 0 20px yellow; }
+            100% { box-shadow: 0 0 5px yellow; }
+          }
+        `}
+      </style>
+      <img
+        src={storeMap}
+        alt="店内マップ"
+        className="map-image"
+        style={{ width: '100%', height: 'auto' }}
+      />
+      {items.map((item) => {
+        const isCurrent = currentItemId === item.id;
+        return (
+          <div
+            key={item.id}
+            className="map-marker"
+            style={{
+              position: 'absolute',
+              left: `${itemPositions[item.id].left}%`,
+              top: `${itemPositions[item.id].top}%`,
+              backgroundColor: item.scanned ? '#D3D3D3' : 'red',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              color: '#fff',
+              transform: 'translate(-50%, -50%)',
+              border: isCurrent ? '3px solid yellow' : 'none',
+              animation: isCurrent ? 'glow 1s infinite' : 'none',
+            }}
+          >
+            {item.name}
+          </div>
+        );
+      })}
     </div>
   );
 };

@@ -1,6 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MapDisplay from './MapDisplay';
+import { supabase } from '../lib/supabase';
+import qrCode from '../images/qr-code.png';
+
 
 interface Message {
   speaker: '😊' | 'あなた';
@@ -10,23 +13,12 @@ interface Message {
 export interface Item {
   id: number;
   name: string;
-  location: string;
+  location?: string; 
   scanned: boolean;
 }
 
-const initialItems: Item[] = [
-  { id: 1, name: "牛乳", location: "乳製品コーナー", scanned: false },
-  { id: 2, name: "パン", location: "ベーカリー", scanned: false },
-  { id: 3, name: "卵", location: "生鮮コーナー", scanned: false },
-  { id: 4, name: "コーヒー", location: "飲料コーナー", scanned: false },
-];
-
-type ConversationStep =
-  | 'arrival'
-  | 'inquiry'
-  | 'findItem'
-  | 'checkout'
-  | 'done';
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+const computeDelay = (msg: Message) => msg.text.length * 50 + 500;
 
 const ChatMessage: React.FC<{ message: Message }> = ({ message }) => {
   const [displayedText, setDisplayedText] = useState("");
@@ -63,27 +55,74 @@ const ChatMessage: React.FC<{ message: Message }> = ({ message }) => {
   );
 };
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-const computeDelay = (msg: Message) => msg.text.length * 50 + 500;
-
 const ChatSimulation: React.FC = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([
-    { speaker: '😊', text: '店に着いた？' }
+    { speaker: '😊', text: 'お店にお着きになりましたか？' }
   ]);
-  const [step, setStep] = useState<ConversationStep>('arrival');
+  const [step, setStep] = useState<'arrival' | 'inquiry' | 'findItem' | 'checkout' | 'done'>('arrival');
   const [responseVisible, setResponseVisible] = useState(true);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [items, setItems] = useState<Item[]>(initialItems);
+  const [items, setItems] = useState<Item[]>([]);
   const [mapVisible, setMapVisible] = useState(false);
+  const [qrVisible, setQrVisible] = useState(false);
+  const [positions, setPositions] = useState<Record<number, { left: number; top: number }>>({});
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // 固定高さのチャットエリア（200px）で最新行が見えるように
+  // チャットエリアを最新行までスクロール
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Supabaseから買い物リスト取得
+  useEffect(() => {
+    async function fetchItems() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data, error } = await supabase
+          .from('shopping_items')
+          .select('*')
+          .order('created_at', { ascending: true });
+        if (error) throw error;
+        const fetchedItems: Item[] = (data || []).map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          location: d.category || '未設定',
+          scanned: false,
+        }));
+        setItems(fetchedItems);
+      } catch (error) {
+        console.error('Error fetching items:', error);
+      }
+    }
+    fetchItems();
+  }, []);
+
+  // itemsが取得されたら、一度だけ各商品の座標を生成する
+  useEffect(() => {
+    if (items.length > 0 && Object.keys(positions).length === 0) {
+      const pos: Record<number, { left: number; top: number }> = {};
+      items.forEach(item => {
+        pos[item.id] = {
+          left: Math.random() * 80 + 10,
+          top: Math.random() * 80 + 10,
+        };
+      });
+      setPositions(pos);
+    }
+  }, [items, positions]);
+
+  // itemsをpositionsに基づいて、topの小さい順にソートする
+  const sortedData = useMemo(() => {
+    if (items.length === 0 || Object.keys(positions).length === 0) {
+      return { sorted: [] as Item[], positions: {} as Record<number, { left: number; top: number }> };
+    }
+    const sorted = [...items].sort((a, b) => positions[a.id].top - positions[b.id].top);
+    return { sorted, positions };
+  }, [items, positions]);
 
   const addSequentialMessages = async (msgs: Message[]) => {
     for (const msg of msgs) {
@@ -94,71 +133,73 @@ const ChatSimulation: React.FC = () => {
 
   const handleArrival = async () => {
     setResponseVisible(false);
-    setMessages(prev => [...prev, { speaker: 'あなた', text: '着いたよ' }]);
+    setMessages(prev => [...prev, { speaker: 'あなた', text: '着きました' }]);
     await delay(1000);
-    const msgs1: Message[] = [
-      { speaker: '😊', text: 'ほな、買物リストを表示するわ！' },
-      { speaker: '😊', text: '【買物リスト】' },
-      { speaker: '😊', text: '[1] 牛乳 － 乳製品コーナー' },
-      { speaker: '😊', text: '[2] パン － ベーカリー' },
-      { speaker: '😊', text: '[3] 卵 － 生鮮コーナー' },
-      { speaker: '😊', text: '[4] コーヒー － 飲料コーナー' },
-      { speaker: '😊', text: '【店内マップ】' },
-      { speaker: '😊', text: '下にマップ表示したよー' }
+    const listMessages: Message[] = [
+      { speaker: '😊', text: 'では、買い物リストを表示いたしますね。' },
+      { speaker: '😊', text: '【買い物リスト】' },
     ];
-    await addSequentialMessages(msgs1);
+    sortedData.sorted.forEach((item, index) => {
+      listMessages.push({ speaker: '😊', text: `[${index + 1}] ${item.name} － ${item.location}` });
+    });
+    listMessages.push(
+      { speaker: '😊', text: '【店内マップ】' },
+      { speaker: '😊', text: '下にマップを表示いたしました。' }
+    );
+    await addSequentialMessages(listMessages);
     setMapVisible(true);
-    setMessages(prev => [...prev, { speaker: '😊', text: '店員さんに「お買い得情報」問い合わせする？' }]);
+    setMessages(prev => [...prev, { speaker: '😊', text: '店員さんに「お買い得情報」を問い合わせいたしますか？' }]);
     setStep('inquiry');
     setResponseVisible(true);
   };
 
   const handleInquiryAnswer = async (answer: boolean) => {
     setResponseVisible(false);
-    const msg1: Message = { speaker: 'あなた', text: answer ? '問い合わせするで' : '問い合わせせんわ' };
+    const msg1: Message = { speaker: 'あなた', text: answer ? '問い合わせします' : '問い合わせはいたしません' };
     setMessages(prev => [...prev, msg1]);
     await delay(computeDelay(msg1));
     if (answer) {
       await addSequentialMessages([
-        { speaker: '😊', text: 'ええ情報あるで！' },
-        { speaker: '😊', text: '乳製品コーナーはセール中やし、ベーカリーも今なら特典付きやで！' }
+        { speaker: '😊', text: '良い情報がございます。乳製品コーナーはセール中、またベーカリーにも特典がございます。' }
       ]);
     } else {
-      await addSequentialMessages([{ speaker: '😊', text: '了解や、先に進もうや！' }]);
+      await addSequentialMessages([{ speaker: '😊', text: 'かしこまりました。では、次に進みますね。' }]);
     }
     setStep('findItem');
-    setMessages(prev => [...prev, { speaker: '😊', text: `「${items[currentItemIndex].name}」見つけた？` }]);
+    setMessages(prev => [...prev, { speaker: '😊', text: `「${sortedData.sorted[currentItemIndex].name}」は見つかりましたか？` }]);
     setResponseVisible(true);
   };
 
   const handleFindItemAnswer = async (answer: boolean) => {
     setResponseVisible(false);
     if (answer) {
+      // scanned状態を更新
       setItems(prevItems =>
-        prevItems.map((item, idx) =>
-          idx === currentItemIndex ? { ...item, scanned: true } : item
+        prevItems.map(item =>
+          item.id === sortedData.sorted[currentItemIndex].id ? { ...item, scanned: true } : item
         )
       );
-      const msg: Message = { speaker: '😊', text: `グッジョブ！「${items[currentItemIndex].name}」をピックアップしたで！` };
+      const msg: Message = { speaker: '😊', text: `素晴らしいです。「${sortedData.sorted[currentItemIndex].name}」をピックアップいただきましたね。` };
       setMessages(prev => [...prev, msg]);
       await delay(computeDelay(msg));
-      if (currentItemIndex + 1 < items.length) {
+      if (currentItemIndex + 1 < sortedData.sorted.length) {
         const nextIndex = currentItemIndex + 1;
         setCurrentItemIndex(nextIndex);
-        setMessages(prev => [...prev, { speaker: '😊', text: `「${items[nextIndex].name}」見つけた？` }]);
+        setMessages(prev => [...prev, { speaker: '😊', text: `「${sortedData.sorted[nextIndex].name}」は見つかりましたか？` }]);
       } else {
         setStep('checkout');
+        setMapVisible(false);
+        setQrVisible(true);
         await addSequentialMessages([
-          { speaker: '😊', text: '全部の商品ピックアップできたな！ほな、レジ行こか～' },
-          { speaker: '😊', text: 'レジでボンタンとQRコードが表示されるから、スキャンしてもらってな！' },
-          { speaker: '😊', text: 'レジでスキャンしたら「スキャン完了」ボタン押してな！' }
+          { speaker: '😊', text: 'すべての商品をピックアップいただきましたね。' },
+          { speaker: '😊', text: 'レジでQRコードをスキャンいただき、その後「スキャン完了」ボタンを押してください。' }
         ]);
       }
     } else {
-      const msg: Message = { speaker: '😊', text: 'まだか？遠慮なく店員さんに聞いてな！' };
+      const msg: Message = { speaker: '😊', text: 'まだ見つかっていないようです。お近くの店員さんにお尋ねくださいませ。' };
       setMessages(prev => [...prev, msg]);
       await delay(computeDelay(msg));
-      setMessages(prev => [...prev, { speaker: '😊', text: `「${items[currentItemIndex].name}」見つけた？` }]);
+      setMessages(prev => [...prev, { speaker: '😊', text: `「${sortedData.sorted[currentItemIndex].name}」は見つかりましたか？` }]);
     }
     setResponseVisible(true);
   };
@@ -166,15 +207,15 @@ const ChatSimulation: React.FC = () => {
   const handleCheckout = async () => {
     setResponseVisible(false);
     await addSequentialMessages([
-      { speaker: '😊', text: 'かいけい終了！リワードとポイントもゲットやで！' },
-      { speaker: '😊', text: '無事におうちに帰るまでがクエストや。気ぃつけて帰ってな！' }
+      { speaker: '😊', text: 'レジ精算が完了いたしました。'},
+      { speaker: '😊', text: 'ご利用ありがとうございました。 リワードとポイントを獲得されました。どうぞお気をつけてお帰りくださいませ。' }
     ]);
     setStep('done');
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '10px' }}>
-      {/* 固定高さのチャット画面（200px） */}
+      {/* チャット画面 */}
       <div 
         ref={chatContainerRef}
         style={{ 
@@ -190,14 +231,14 @@ const ChatSimulation: React.FC = () => {
           <ChatMessage key={index} message={msg} />
         ))}
       </div>
-      {/* 返答選択ボタン用の固定高さコンテナ（例：80px） */}
+      {/* ボタンエリア */}
       <div style={{ minHeight: '80px', marginTop: '10px', textAlign: 'center' }}>
         {step === 'arrival' && responseVisible && (
           <button 
             onClick={handleArrival} 
             style={{ fontSize: '28px', padding: '20px 40px', borderRadius: '12px', backgroundColor: '#87CEFA', border: 'none', cursor: 'pointer' }}
           >
-            着いたよ
+            着きました
           </button>
         )}
         {step === 'inquiry' && responseVisible && (
@@ -249,12 +290,14 @@ const ChatSimulation: React.FC = () => {
           </button>
         )}
       </div>
-      {/* 常に画面最下部にマップ表示（mapVisible が true の場合） */}
-      {mapVisible && (
-        <div style={{ marginTop: '10px' }}>
-          <MapDisplay items={items} />
-        </div>
-      )}
+      {/* マップまたはQRコード表示 */}
+      <div style={{ marginTop: '10px', textAlign: 'center',display: 'flex', justifyContent: 'center' }}>
+        {qrVisible ? (
+          <img src={qrCode} alt="QR Code" style={{ width: '200px', height: '200px' }} />
+        ) : (
+          mapVisible && <MapDisplay items={sortedData.sorted} positions={sortedData.positions} currentItemId={sortedData.sorted[currentItemIndex]?.id} />
+        )}
+      </div>
     </div>
   );
 };
