@@ -89,6 +89,12 @@ const TopPage = () => {
           🎮写真
         </button>
         <button
+          onClick={() => navigate('/ShoppingAssistant')}
+          className="py-4 text-2xl md:text-3xl font-bold text-white bg-gray-400 rounded-lg hover:bg-gray-500 transition-colors"
+        >
+          🎮AIchatベータ
+        </button>
+        <button
           onClick={() =>
             window.open(
               'https://suzuri.jp/7DbpRihzKefprwx',

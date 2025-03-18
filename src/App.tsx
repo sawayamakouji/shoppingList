@@ -18,6 +18,7 @@ import Game04 from "./components/Game04";
 import Game05 from "./components/Game05";
 import Game01 from "./components/Game01";
 import ChatSimulation from './components/ChatSimulation';
+import ShoppingAssistant from "./components/ShoppingAssistant";
 
 function MainTabs() {
   const navigate = useNavigate();
@@ -115,6 +116,7 @@ function App() {
       <Route path="/chat" element={<ChatSimulation />} />
       {/* フォールバック：何も該当しない場合、トップページにリダイレクト */}
       <Route path="*" element={<Navigate to="/" />} />
+      <Route path="ShoppingAssistant" element={<ShoppingAssistant />} />
     </Routes>
   );
 }
