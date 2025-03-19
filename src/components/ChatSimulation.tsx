@@ -157,6 +157,8 @@ const ChatSimulation: React.FC = () => {
     setResponseVisible(false);
   
     const userMessage: Message = { speaker: 'あなた', text: answer ? '問い合わせします' : '問い合わせはいたしません' };
+
+
     
     setMessages(prev => [...prev, userMessage]);
   
