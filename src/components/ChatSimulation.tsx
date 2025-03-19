@@ -155,9 +155,14 @@ const ChatSimulation: React.FC = () => {
 
   const handleInquiryAnswer = async (answer: boolean) => {
     setResponseVisible(false);
-    const msg1: Message = { speaker: 'あなた', text: answer ? '問い合わせします' : '問い合わせはいたしません' };
-    setMessages(prev => [...prev, msg1]);
-    await delay(computeDelay(msg1));
+  
+    const userMessage: Message = { speaker: 'あなた', text: answer ? '問い合わせします' : '問い合わせはいたしません' };
+    
+    setMessages(prev => [...prev, userMessage]);
+  
+    // レンダリングを待つために短いディレイを入れる
+    await delay(200);
+  
     if (answer) {
       await addSequentialMessages([
         { speaker: '😊', text: '良い情報がございます。乳製品コーナーはセール中、またベーカリーにも特典がございます。' }
@@ -165,8 +170,10 @@ const ChatSimulation: React.FC = () => {
     } else {
       await addSequentialMessages([{ speaker: '😊', text: 'かしこまりました。では、次に進みますね。' }]);
     }
+  
     setStep('findItem');
     setMessages(prev => [...prev, { speaker: '😊', text: `「${sortedData.sorted[currentItemIndex].name}」は見つかりましたか？` }]);
+  
     setResponseVisible(true);
   };
 
