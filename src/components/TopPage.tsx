@@ -114,7 +114,7 @@ const TopPage = () => {
           </>
         )}
 
-        {/* 他のボタン表示切り替え */}
+        {/* 他のボタン表示切り替 え */}
         <button
           onClick={() => setShowMore(!showMore)}
           className="w-full py-4 text-2xl md:text-3xl font-bold text-white bg-gray-500 rounded-lg hover:bg-gray-600 transition-colors"
