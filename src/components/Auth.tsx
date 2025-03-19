@@ -30,7 +30,12 @@ export function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
+        <div className="mt-6 text-center text-3xｍ font-extrabold text-gray-900">
+⁠お試しメールアドレス：test@test<br/>
+
+お試しパスワード：test1234<br/>適当なメアドでもOKです<br/>メモdata画像など保持されます</div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <br/>
             {isSignUp ? 'アカウントを作成' : 'ログイン'}
           </h2>
         </div>
