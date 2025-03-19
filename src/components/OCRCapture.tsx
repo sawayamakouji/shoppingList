@@ -427,21 +427,21 @@ export function OCRCapture() {
     }
   };
 
-  const handleAddToShoppingList = () => {
+  const handleAddToShoppingList = async () => {
     if (!geminiResult) return;
-    const confirmed = window.confirm("この内容で買い物リストに追加しますか？");
-    if (confirmed) {
-      const items = geminiResult
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line && !line.includes("買い物リスト"));
-      items.forEach(item => {
-        addItemToShoppingList(item);
-      });
-    } else {
-      alert("追加をキャンセルしました");
+    const items = geminiResult
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.includes("買い物リスト"));
+  
+    for (const item of items) {
+      const confirmed = window.confirm(`「${item}」を買物メモに追加するんですけど、追加しますか？`);
+      if (confirmed) {
+        await addItemToShoppingList(item);
+      }
     }
   };
+  
 
   return (
     <div className="space-y-6">
