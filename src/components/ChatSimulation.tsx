@@ -181,7 +181,8 @@ const ChatSimulation: React.FC = () => {
   };
 
   const handleFindItemAnswer = async (answer: boolean) => {
-    setResponseVisible(false);
+    // ボタンの状態を変更するのを遅らせる
+    setTimeout(() => setResponseVisible(false), 100);
   
     const nextItem = sortedData.sorted[currentItemIndex];
   
@@ -196,7 +197,6 @@ const ChatSimulation: React.FC = () => {
     await delay(500); // UI更新のために少し待つ
   
     if (answer) {
-      // 商品を "scanned" 状態に変更
       setItems(prevItems =>
         prevItems.map(item =>
           item.id === nextItem.id ? { ...item, scanned: true } : item
@@ -208,7 +208,6 @@ const ChatSimulation: React.FC = () => {
       await delay(computeDelay({ speaker: '😊', text: `素晴らしいです。「${nextItem.name}」をピックアップいただきましたね。` }));
   
       if (currentItemIndex + 1 < sortedData.sorted.length) {
-        // 次のアイテムへ
         const nextIndex = currentItemIndex + 1;
         setCurrentItemIndex(nextIndex);
   
@@ -219,7 +218,6 @@ const ChatSimulation: React.FC = () => {
           console.error("エラー: 次のアイテムが取得できませんでした:", nextIndex, sortedData.sorted);
         }
       } else {
-        // すべての商品をピックアップ完了
         setStep('checkout');
         setMapVisible(false);
         setQrVisible(true);
@@ -239,6 +237,7 @@ const ChatSimulation: React.FC = () => {
   
     setResponseVisible(true);
   };
+  
   
 
   const handleCheckout = async () => {
@@ -299,11 +298,15 @@ const ChatSimulation: React.FC = () => {
         {step === 'findItem' && responseVisible && (
           <>
             <button 
-              onClick={() => handleFindItemAnswer(true)} 
-              style={{ fontSize: '26px', padding: '20px 40px', borderRadius: '12px', backgroundColor: '#32CD32', border: 'none', cursor: 'pointer' }}
-            >
-              見つけた！
-            </button>
+  tabIndex={0} // ← 追加
+  onClick={(e) => {
+    e.stopPropagation(); // ← 追加
+    handleFindItemAnswer(true);
+  }} 
+  style={{ fontSize: '26px', padding: '20px 40px', borderRadius: '12px', backgroundColor: '#32CD32', border: 'none', cursor: 'pointer' }}
+>
+  見つけた！
+</button>
             <button 
               onClick={() => handleFindItemAnswer(false)} 
               style={{ fontSize: '26px', padding: '20px 40px', borderRadius: '12px', backgroundColor: '#FF4500', border: 'none', cursor: 'pointer', marginLeft: '20px' }}
