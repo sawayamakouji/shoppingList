@@ -123,7 +123,11 @@ const TopPage = () => {
         </button>
       </div>
         <div className='pt-20'>Presented by AE✌N_ph</div>
-        <div className='pt-5'> 辛口フィードバックはこちらへ</div>
+        <div class="pt-5">
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLScov0Gi0gMe3SjM1ldgcJrfIltZSjm2iVaYdc7FLDD-Hc56ig/viewform?usp=dialog">
+        辛口フィードバックはこちらへ
+    </a>
+</div>
       {/* 6人の丸いアイコンリンク */}
       <div className="mt-12 flex justify-around w-full max-w-md">
         <div className="cursor-pointer" onClick={() => window.open('https://x.com/shuyin02')}>
