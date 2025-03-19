@@ -533,15 +533,7 @@ export function OCRCapture() {
             この内容で追加する
           </button>
 
-          <button
-          onClick={() => {
-            setGeminiResult('');
-            alert("追加処理を中止しました。");
-          }}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-        >
-          取り消し
-        </button>
+          
         </div>
       )}
     </div>
