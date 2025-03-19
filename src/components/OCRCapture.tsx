@@ -316,7 +316,7 @@ export function OCRCapture() {
     setLoading(true);
     setErrorMessage('');
     try {
-      const promptText = "以下の画像から、買い物リストとして適切な商品名と数量（あれば）を抽出してください。";
+      const promptText = "以下の画像から、買い物リストとして適切な商品名と数量（あれば）を抽出して日本語で箇条書きにしてください。商品名と数量以外は出力しなくていいです";
       const [prefix, base64Data] = imageSrc.split(',');
       const mimeTypeMatch = prefix.match(/data:(.*?);base64/);
       const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : "image/jpeg";

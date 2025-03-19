@@ -7,7 +7,7 @@ exports.handler = async (event, context) => {
     const { ocrText } = JSON.parse(event.body);
     
     // Gemini API用のプロンプトを作成（例）
-    const prompt = `以下のテキストから、買い物リストとして適切な項目（商品名と数量があれば）を箇条書きにしてください。出来れば画像の商品の正確な商品名とJANcodeを調べてください。\n\n\n${ocrText}`;
+    const prompt = `以下のテキストから、買い物リストとして適切な項目（商品名と数量があれば）を日本語で箇条書きにしてください。出来れば画像の商品の正確な商品名とJANcodeを調べて箇条書きにしてください。商品名やJANコードや数量など以外は出力しないでください。\n\n\n${ocrText}`;
     
     // Gemini API のエンドポイント・APIキー（Netlifyの環境変数から取得）
     const geminiApiKey = process.env.GOOGLE_AI_STUDIO_API_KEY;
