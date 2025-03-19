@@ -182,37 +182,64 @@ const ChatSimulation: React.FC = () => {
 
   const handleFindItemAnswer = async (answer: boolean) => {
     setResponseVisible(false);
+  
+    const nextItem = sortedData.sorted[currentItemIndex];
+  
+    if (!nextItem) {
+      console.error("エラー: currentItemIndex が範囲外です:", currentItemIndex, sortedData.sorted);
+      setResponseVisible(true);
+      return;
+    }
+  
+    setMessages(prev => [...prev, { speaker: 'あなた', text: answer ? "見つけた！" : "まだ…" }]);
+  
+    await delay(500); // UI更新のために少し待つ
+  
     if (answer) {
-      // scanned状態を更新
+      // 商品を "scanned" 状態に変更
       setItems(prevItems =>
         prevItems.map(item =>
-          item.id === sortedData.sorted[currentItemIndex].id ? { ...item, scanned: true } : item
+          item.id === nextItem.id ? { ...item, scanned: true } : item
         )
       );
-      const msg: Message = { speaker: '😊', text: `素晴らしいです。「${sortedData.sorted[currentItemIndex].name}」をピックアップいただきましたね。` };
-      setMessages(prev => [...prev, msg]);
-      await delay(computeDelay(msg));
+  
+      setMessages(prev => [...prev, { speaker: '😊', text: `素晴らしいです。「${nextItem.name}」をピックアップいただきましたね。` }]);
+  
+      await delay(computeDelay({ speaker: '😊', text: `素晴らしいです。「${nextItem.name}」をピックアップいただきましたね。` }));
+  
       if (currentItemIndex + 1 < sortedData.sorted.length) {
+        // 次のアイテムへ
         const nextIndex = currentItemIndex + 1;
         setCurrentItemIndex(nextIndex);
-        setMessages(prev => [...prev, { speaker: '😊', text: `「${sortedData.sorted[nextIndex].name}」は見つかりましたか？` }]);
+  
+        const newNextItem = sortedData.sorted[nextIndex];
+        if (newNextItem) {
+          setMessages(prev => [...prev, { speaker: '😊', text: `「${newNextItem.name}」は見つかりましたか？` }]);
+        } else {
+          console.error("エラー: 次のアイテムが取得できませんでした:", nextIndex, sortedData.sorted);
+        }
       } else {
+        // すべての商品をピックアップ完了
         setStep('checkout');
         setMapVisible(false);
         setQrVisible(true);
+  
         await addSequentialMessages([
-          { speaker: '😊', text: 'すべての商品をピックアップいただきましたね。' },
-          { speaker: '😊', text: 'レジでQRコードをスキャンいただき、その後「スキャン完了」ボタンを押してください。' }
+          { speaker: '😊', text: "すべての商品をピックアップいただきましたね。" },
+          { speaker: '😊', text: "レジでQRコードをスキャンいただき、その後「スキャン完了」ボタンを押してください。" }
         ]);
       }
     } else {
-      const msg: Message = { speaker: '😊', text: 'まだ見つかっていないようです。お近くの店員さんにお尋ねくださいませ。' };
-      setMessages(prev => [...prev, msg]);
-      await delay(computeDelay(msg));
-      setMessages(prev => [...prev, { speaker: '😊', text: `「${sortedData.sorted[currentItemIndex].name}」は見つかりましたか？` }]);
+      setMessages(prev => [...prev, { speaker: '😊', text: "まだ見つかっていないようです。お近くの店員さんにお尋ねくださいませ。" }]);
+  
+      await delay(computeDelay({ speaker: '😊', text: "まだ見つかっていないようです。お近くの店員さんにお尋ねくださいませ。" }));
+  
+      setMessages(prev => [...prev, { speaker: '😊', text: `「${nextItem.name}」は見つかりましたか？` }]);
     }
+  
     setResponseVisible(true);
   };
+  
 
   const handleCheckout = async () => {
     setResponseVisible(false);
