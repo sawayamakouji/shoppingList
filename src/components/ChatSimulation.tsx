@@ -124,6 +124,7 @@ const ChatSimulation: React.FC = () => {
     return { sorted, positions };
   }, [items, positions]);
 
+
   const addSequentialMessages = async (msgs: Message[]) => {
     for (const msg of msgs) {
       setMessages(prev => [...prev, msg]);
@@ -155,27 +156,27 @@ const ChatSimulation: React.FC = () => {
 
   const handleInquiryAnswer = async (answer: boolean) => {
     setResponseVisible(false);
-  
+
     const userMessage: Message = { speaker: 'あなた', text: answer ? '問い合わせします' : '問い合わせはいたしません' };
-
-
-    
     setMessages(prev => [...prev, userMessage]);
-  
-    // レンダリングを待つために短いディレイを入れる
+
     await delay(200);
-  
+
     if (answer) {
-      await addSequentialMessages([
-        { speaker: '😊', text: '良い情報がございます。乳製品コーナーはセール中、またベーカリーにも特典がございます。' }
-      ]);
+      await addSequentialMessages([{ speaker: '😊', text: '良い情報がございます。乳製品コーナーはセール中、またベーカリーにも特典がございます。' }]);
     } else {
       await addSequentialMessages([{ speaker: '😊', text: 'かしこまりました。では、次に進みますね。' }]);
     }
-  
+
     setStep('findItem');
-    setMessages(prev => [...prev, { speaker: '😊', text: `「${sortedData.sorted[currentItemIndex].name}」は見つかりましたか？` }]);
-  
+
+    const nextItem = sortedData.sorted[currentItemIndex];
+    if (nextItem) {
+      setMessages(prev => [...prev, { speaker: '😊', text: `「${nextItem.name}」は見つかりましたか？` }]);
+    } else {
+      console.error('currentItemIndex が範囲外:', currentItemIndex, sortedData.sorted);
+    }
+
     setResponseVisible(true);
   };
 
